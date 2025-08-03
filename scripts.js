@@ -1,27 +1,51 @@
 // scripts.js
 
+// Firebase Import
 import { db, collection, getDocs, query, where, orderBy, onSnapshot, updateDoc, doc, getDoc } from './firebase-config.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    // ... โค้ดเดิมในส่วนนี้ (ที่เกี่ยวกับ loginModal) ...
+// Global variables
+let allOrdersData = [];
 
-    if (document.getElementById('adminDashboard')) {
+document.addEventListener('DOMContentLoaded', () => {
+    const loginModal = document.getElementById('loginModal');
+    const adminDashboard = document.getElementById('adminDashboard');
+    const passwordInput = document.getElementById('passwordInput');
+
+    // Check if we are on the admin page
+    if (adminDashboard) {
         if (localStorage.getItem('isLoggedIn') === 'true') {
-            document.getElementById('loginModal').classList.add('hidden');
-            document.getElementById('adminDashboard').classList.remove('hidden');
-            loadOrders();
+            loginModal.classList.add('hidden');
+            adminDashboard.classList.remove('hidden');
             setupRealtimeOrdersListener();
         } else {
-            document.getElementById('loginModal').classList.remove('hidden');
-            document.getElementById('adminDashboard').classList.add('hidden');
+            loginModal.classList.remove('hidden');
+            adminDashboard.classList.add('hidden');
+            passwordInput.focus();
         }
     }
 });
 
-const ordersCollection = collection(db, "orders");
-let allOrdersData = [];
+async function login() {
+    const password = document.getElementById('passwordInput').value;
+    if (password === '1234') {
+        localStorage.setItem('isLoggedIn', 'true');
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('adminDashboard').classList.remove('hidden');
+        setupRealtimeOrdersListener();
+    } else {
+        alert('รหัสผ่านไม่ถูกต้อง');
+        document.getElementById('passwordInput').value = '';
+    }
+}
 
-async function setupRealtimeOrdersListener() {
+function logout() {
+    localStorage.removeItem('isLoggedIn');
+}
+
+// --- Firebase Integration Functions ---
+const ordersCollection = collection(db, "orders");
+
+function setupRealtimeOrdersListener() {
     const q = query(ordersCollection, orderBy("timestamp", "desc"));
     onSnapshot(q, (snapshot) => {
         allOrdersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -35,6 +59,8 @@ function renderOrders(orders) {
     const emptyState = document.getElementById('emptyOrdersState');
     const displayedCount = document.getElementById('displayedOrdersCount');
     
+    if (!ordersList || !emptyState || !displayedCount) return;
+
     ordersList.innerHTML = '';
 
     if (orders.length === 0) {
@@ -106,6 +132,7 @@ function renderOrders(orders) {
 }
 
 function updateDashboardStats(orders) {
+    if (!document.getElementById('totalRevenue')) return;
     const totalRevenue = orders.reduce((sum, order) => sum + order.items.reduce((itemSum, item) => itemSum + (item.price * item.quantity), 0), 0);
     const totalOrders = orders.length;
     
@@ -148,23 +175,32 @@ async function searchAdminOrders() {
     renderOrders(filtered);
 }
 
-// Global functions for HTML
-window.refreshOrders = searchAdminOrders;
-window.searchAdminOrders = searchAdminOrders;
-window.filterOrders = searchAdminOrders;
-window.updateOrderStatus = async (id, status) => {
+// Function to handle key press for login
+function handlePasswordKeyPress(event) {
+    if (event.key === 'Enter') {
+        login();
+    }
+}
+
+// Function to handle key press for admin search
+function handleAdminSearchKeyPress(event) {
+    if (event.key === 'Enter') {
+        searchAdminOrders();
+    }
+}
+
+async function updateOrderStatus(id, status) {
     try {
         const orderRef = doc(db, "orders", id);
         await updateDoc(orderRef, { status: status });
         alert(`อัปเดตสถานะออร์เดอร์ #${id.substring(0, 8)} เป็น "${status}" เรียบร้อย`);
-        // The onSnapshot listener will automatically re-render the list
     } catch (e) {
         console.error("Error updating document: ", e);
         alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
     }
-};
+}
 
-window.viewReceipt = async (id) => {
+async function viewReceipt(id) {
     try {
         const orderRef = doc(db, "orders", id);
         const orderSnap = await getDoc(orderRef);
@@ -214,9 +250,9 @@ window.viewReceipt = async (id) => {
     } catch (e) {
         console.error("Error fetching document: ", e);
     }
-};
+}
 
-window.downloadReceiptAsImage = async () => {
+async function downloadReceiptAsImage() {
     const receiptContent = document.getElementById('receiptContent');
     const options = {
         useCORS: true,
@@ -231,9 +267,9 @@ window.downloadReceiptAsImage = async () => {
     link.href = canvas.toDataURL('image/png');
     link.download = 'ใบเสร็จ-ร้านแม่ดอนโอทอป.png';
     link.click();
-};
+}
 
-window.openPrintableReceipt = () => {
+function openPrintableReceipt() {
     const printContent = document.getElementById('receiptContent').innerHTML;
     const printWindow = window.open('', '', 'height=800,width=600');
     printWindow.document.write('<html><head><title>พิมพ์ใบเสร็จ</title>');
@@ -249,21 +285,17 @@ window.openPrintableReceipt = () => {
     printWindow.document.write('<script>window.onload = function() { window.print(); window.close(); }</script>');
     printWindow.document.write('</body></html>');
     printWindow.document.close();
-};
-
-function handlePasswordKeyPress(event) {
-    if (event.key === 'Enter') {
-        login();
-    }
 }
 
-function handleAdminSearchKeyPress(event) {
-    if (event.key === 'Enter') {
-        searchAdminOrders();
-    }
-}
-
+// Expose functions to the global scope
 window.login = login;
 window.logout = logout;
+window.refreshOrders = searchAdminOrders;
+window.searchAdminOrders = searchAdminOrders;
+window.filterOrders = searchAdminOrders;
+window.updateOrderStatus = updateOrderStatus;
+window.viewReceipt = viewReceipt;
+window.downloadReceiptAsImage = downloadReceiptAsImage;
+window.openPrintableReceipt = openPrintableReceipt;
 window.handlePasswordKeyPress = handlePasswordKeyPress;
 window.handleAdminSearchKeyPress = handleAdminSearchKeyPress;
