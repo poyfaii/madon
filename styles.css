@@ -112,15 +112,14 @@ body {
     transform: translateY(-2px);
 }
 
-/* --- ปรับปรุงช่องกรอกข้อมูลใหม่ --- */
 .input-modern {
     width: 100%;
     padding: 14px 18px;
-    border: 2px solid transparent; /* เปลี่ยนจาก border solid เป็น transparent */
+    border: 2px solid transparent;
     border-radius: 16px;
     font-size: 16px;
     transition: all 0.4s ease;
-    background: #fefce8; /* เปลี่ยนสีพื้นหลังให้ชัดเจน */
+    background: #fefce8;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     position: relative;
     z-index: 1;
@@ -134,7 +133,7 @@ body {
     right: 0;
     bottom: 0;
     border-radius: 16px;
-    border: 2px solid #eab308; /* กรอบสีเหลืองชัดเจน */
+    border: 2px solid #eab308;
     opacity: 0;
     transition: opacity 0.4s ease;
     z-index: -1;
@@ -142,8 +141,8 @@ body {
 
 .input-modern:focus {
     outline: none;
-    background: #fff; /* พื้นหลังเปลี่ยนเป็นสีขาวเมื่อโฟกัส */
-    box-shadow: 0 0 0 4px rgba(234, 179, 8, 0.25); /* เพิ่มเงาเรืองแสงสีเหลือง */
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(234, 179, 8, 0.25);
     transform: translateY(-2px);
 }
 
@@ -216,6 +215,20 @@ body {
     gap: 8px;
 }
 
+/* --- Admin Specific Styles --- */
+.order-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #e5e7eb;
+}
+.order-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -224,6 +237,27 @@ body {
     border-radius: 9999px;
     font-weight: 700;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.status-badge.รอดำเนินการ {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #eab308;
+}
+.status-badge.กำลังจัดส่ง {
+    background: #e0f2fe;
+    color: #0c4a6e;
+    border: 1px solid #38bdf8;
+}
+.status-badge.จัดส่งแล้ว {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #22c55e;
+}
+.status-badge.ยกเลิก {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #ef4444;
 }
 
 .no-print {
@@ -269,4 +303,3 @@ body {
         transform: rotate(360deg);
     }
 }
-
