@@ -6,9 +6,9 @@ const firebaseConfig = {
   authDomain: "orders-3d979.firebaseapp.com",
   databaseURL: "https://orders-3d979-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "orders-3d979",
-  storageBucket: "orders-3d979.appspot.com",
-  messagingSenderId: ". ",
-  appId: "1:. :web:4f1b772b853b602cc93e94",
+  storageBucket: "orders-3d979.firebasestorage.app",
+  messagingSenderId: "1048840913149",
+  appId: "1:1048840913149:web:4f1b772b853b602cc93e94",
   measurementId: "G-P5JPR90CX8"
 };
 
@@ -63,7 +63,6 @@ window.deleteOrderFromFirebase = async function(orderId) {
     return false;
   }
 }
-
 
 let items = [];
 let isOrderSaved = false;
