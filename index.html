@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสั่งซื้อสินค้า</title>
+    <title>ระบบสั่งซื้อสินค้า - แม่ดอนโอทอป</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gradient-to-br from-honey-100 to-white min-h-screen font-kanit text-gray-800">
+<body class="bg-gradient-to-br from-yellow-50 via-amber-50 to-white min-h-screen text-gray-800 font-kanit">
 
     <header class="bg-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             <a href="index.html" class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-gradient-to-r from-honey-500 to-amber-500 rounded-full flex items-center justify-center shadow-md animate-spin-slow">
-                    <span class="text-2xl">🍯</span>
+                <div class="w-14 h-14 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg animate-spin-slow">
+                    <span class="text-3xl">🍌</span>
                 </div>
                 <span class="text-2xl font-bold text-gray-800">
-                    <span class="text-honey-500">แม่ดอน</span>โอทอป
+                    <span class="text-yellow-500">แม่ดอน</span>โอทอป
                 </span>
             </a>
             <div class="flex items-center gap-4">
@@ -33,20 +33,58 @@
             <div class="lg:col-span-1">
                 <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl border border-gray-100 sticky top-28">
                     <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                        <span class="text-4xl text-amber-500">✨</span> เพิ่มสินค้าลงตะกร้า
+                        <span class="text-4xl text-yellow-500">🍌</span> เพิ่มสินค้าลงตะกร้า
                     </h2>
                     
                     <div id="statusMessage" class="hidden my-4"></div>
 
-                    <form id="productForm" onsubmit="event.preventDefault();">
+                    <form id="productForm">
                         <div class="space-y-4">
                             <div>
                                 <label for="productName" class="input-label">ชื่อสินค้า</label>
-                                <input type="text" id="productName" placeholder="เช่น กล้วยตากพลังงานแสงอาทิตย์" class="input-modern" required>
+                                <div class="space-y-2">
+                                    <select id="productNameSelect" class="input-modern" onchange="selectProductName()">
+                                        <option value="">-- เลือกสินค้า --</option>
+                                        <option value="กล้วยเบรคแตก">กล้วยเบรคแตก</option>
+                                        <option value="กล้วยปาปิก้า">กล้วยปาปิก้า</option>
+                                        <option value="กล้วยหักมุกคาราเมล">กล้วยหักมุกคาราเมล</option>
+                                        <option value="กล้วยฉาบเค็ม">กล้วยฉาบเค็ม</option>
+                                        <option value="กล้วยอบเนย">กล้วยอบเนย</option>
+                                        <option value="กล้วยสอดใส้มะขาม">กล้วยสอดใส้มะขาม</option>
+                                        <option value="กล้วยหักมุกแว่นเค็ม ไม่ใส่ใส้มะขาม">กล้วยหักมุกแว่นเค็ม ไม่ใส่ใส้มะขาม</option>
+                                        <option value="ฟักทอง">ฟักทอง</option>
+                                        <option value="มันไข่อบเนย">มันไข่อบเนย</option>
+                                        <option value="มันไข่เส้นเค็ม">มันไข่เส้นเค็ม</option>
+                                        <option value="มันต่ออบเนย">มันต่ออบเนย</option>
+                                        <option value="มันต่อเส้น">มันต่อเส้น</option>
+                                        <option value="กล้วยเส้นสมุนไพร">กล้วยเส้นสมุนไพร</option>
+                                        <option value="กล้วยเส้นปาปิก้า">กล้วยเส้นปาปิก้า</option>
+                                        <option value="เผือกแผ่นอบเนย">เผือกแผ่นอบเนย</option>
+                                        <option value="เผือกเส้นเค็ม">เผือกเส้นเค็ม</option>
+                                        <option value="คุ๊กกี้">คุ๊กกี้</option>
+                                        <option value="ทองม้วนกะทิ">ทองม้วนกะทิ</option>
+                                        <option value="ทองม้วนแฟนซี">ทองม้วนแฟนซี</option>
+                                        <option value="ขนมผิงกะทิ">ขนมผิงกะทิ</option>
+                                        <option value="ขนมผิงแฟนซี">ขนมผิงแฟนซี</option>
+                                    </select>
+                                    <input type="text" id="productName" placeholder="หรือพิมพ์ชื่อสินค้าเอง..." class="input-modern" oninput="clearProductSelect()">
+                                </div>
                             </div>
                             <div>
-                                <label for="productWeight" class="input-label">ขนาด/น้ำหนัก</label>
-                                <input type="text" id="productWeight" placeholder="เช่น 250 กรัม / กล่อง" class="input-modern" required>
+                                <label for="productWeight" class="input-label">ขนาด/น้ำหนัก <span class="text-gray-400 text-sm">(ไม่บังคับ)</span></label>
+                                <div class="space-y-2">
+                                    <select id="productWeightSelect" class="input-modern" onchange="selectProductWeight()">
+                                        <option value="">-- เลือกขนาด --</option>
+                                        <option value="100กรัม">100กรัม</option>
+                                        <option value="150กรัม">150กรัม</option>
+                                        <option value="500กรัม">500กรัม</option>
+                                        <option value="1กิโลกรัม">1กิโลกรัม</option>
+                                        <option value="3กิโลกรัม">3กิโลกรัม</option>
+                                        <option value="4กิโลกรัม">4กิโลกรัม</option>
+                                        <option value="5กิโลกรัม">5กิโลกรัม</option>
+                                    </select>
+                                    <input type="text" id="productWeight" placeholder="หรือพิมพ์ขนาดเอง..." class="input-modern" oninput="clearWeightSelect()">
+                                </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
@@ -55,11 +93,11 @@
                                 </div>
                                 <div>
                                     <label for="productPrice" class="input-label">ราคา/หน่วย (บาท)</label>
-                                    <input type="number" id="productPrice" value="0" min="0.01" step="0.01" class="input-modern" required>
+                                    <input type="number" id="productPrice" value="" min="0" step="0.01" placeholder="0.00" class="input-modern">
                                 </div>
                             </div>
                         </div>
-                        <button type="button" onclick="addItem()" class="btn-primary w-full mt-6">
+                        <button type="submit" class="btn-primary w-full mt-6">
                             <span class="text-xl">➕</span> เพิ่มสินค้า
                         </button>
                     </form>
@@ -69,55 +107,46 @@
             <div class="lg:col-span-2">
                 <div class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl border border-gray-100">
                     <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                        <span class="text-4xl text-emerald-500">🛒</span> ตะกร้าสินค้า
-                        <span id="cartBadge" class="bg-emerald-100 text-emerald-700 text-sm font-semibold px-4 py-1 rounded-full animate-pulse">0 รายการ</span>
+                        <span class="text-4xl text-yellow-500">🛒</span> ตะกร้าสินค้า
+                        <span id="cartCount" class="bg-yellow-500 text-white px-3 py-1 rounded-full text-lg font-bold shadow-lg">0</span>
                     </h2>
                     
-                    <ul id="itemList" class="space-y-4 mb-6">
-                        </ul>
-
-                    <div class="border-t-4 border-dashed border-gray-200 pt-6 my-6"></div>
-
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <span class="text-2xl text-blue-500">📝</span> ข้อมูลลูกค้า
-                    </h3>
-                    <div class="space-y-4 mb-6">
-                        <div>
-                            <label for="customerName" class="input-label">ชื่อ-นามสกุล</label>
-                            <input type="text" id="customerName" placeholder="คุณสมชาย ใจดี" class="input-modern" required>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="customerPhone" class="input-label">เบอร์โทรศัพท์</label>
-                                <input type="tel" id="customerPhone" placeholder="08XXXXXXXX" class="input-modern" required>
-                            </div>
-                            <div>
-                                <label for="customerAddress" class="input-label">ที่อยู่จัดส่ง</label>
-                                <input type="text" id="customerAddress" placeholder="123 ถนนสุขุมวิท" class="input-modern" required>
-                            </div>
+                    <div id="cartItems" class="space-y-4 mb-6">
+                        <div class="text-center py-12 text-gray-500">
+                            <div class="text-6xl mb-4 animate-bounce-slow">🍌</div>
+                            <p class="text-xl font-semibold">ตะกร้าว่างเปล่า</p>
+                            <p class="text-sm mt-2">เพิ่มกล้วยและสินค้าอื่นๆ เพื่อเริ่มสั่งซื้อ</p>
                         </div>
                     </div>
                     
-                    <div class="bg-gradient-to-r from-green-500 to-teal-500 text-white p-6 rounded-2xl shadow-lg neon-glow">
-                        <div class="flex justify-between items-center">
-                            <div class="flex-1">
-                                <p class="text-sm font-light">รวมยอดทั้งหมด</p>
-                                <div class="text-3xl font-bold flex items-end">
-                                    <span id="totalPrice" class="mr-1">0.00</span>
-                                    <span class="text-xl font-medium">บาท</span>
+                    <div id="cartSummary" class="hidden">
+                        <div class="border-t-2 border-amber-200 pt-6">
+                            <div class="bg-gradient-to-r from-yellow-50 to-amber-50 p-6 rounded-2xl border-2 border-yellow-200">
+                                <div class="flex justify-between items-center text-xl font-bold text-gray-800 mb-4">
+                                    <span>ยอดรวมทั้งหมด:</span>
+                                    <span id="totalAmount" class="text-yellow-600">0.00 บาท</span>
                                 </div>
-                                <p class="text-xs font-light mt-1">จำนวนสินค้าทั้งหมด <span id="totalQty">0</span> ชิ้น</p>
-                            </div>
-                            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                                <span class="text-4xl">💰</span>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="customerName" class="input-label">ชื่อผู้สั่งซื้อ</label>
+                                        <input type="text" id="customerName" placeholder="กรุณาใส่ชื่อของคุณ" class="input-modern" required>
+                                    </div>
+                                    <div>
+                                        <label for="customerPhone" class="input-label">เบอร์โทรศัพท์</label>
+                                        <input type="tel" id="customerPhone" placeholder="08X-XXX-XXXX" class="input-modern" required>
+                                    </div>
+                                    <div>
+                                        <label for="customerAddress" class="input-label">ที่อยู่จัดส่ง</label>
+                                        <textarea id="customerAddress" placeholder="กรุณาใส่ที่อยู่สำหรับจัดส่งสินค้า" class="input-modern" rows="3" required></textarea>
+                                    </div>
+                                </div>
+                                
+                                <button onclick="submitOrder()" class="btn-primary w-full mt-6 text-lg">
+                                    <span class="text-2xl">🚀</span> ยืนยันการสั่งซื้อ
+                                </button>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="mt-6 space-y-4 md:space-y-0 md:space-x-4 flex flex-col md:flex-row">
-                        <button onclick="confirmSaveOrder()" class="btn-success flex-1">
-                            <span class="text-xl">✅</span> บันทึกออร์เดอร์ & พิมพ์ใบเสร็จ
-                        </button>
                     </div>
                 </div>
             </div>
@@ -126,37 +155,37 @@
         <div id="receiptView" class="hidden">
             <div class="max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl p-6 md:p-10 border border-gray-100 relative overflow-hidden">
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span class="text-honey-100 text-9xl font-black opacity-10 receipt-watermark">แม่ดอน</span>
+                    <span class="text-yellow-100 text-9xl font-black opacity-10">แม่ดอน</span>
                 </div>
                 <div id="receiptContent" class="relative z-10">
                     <div class="text-center mb-8">
                         <div class="flex items-center justify-center gap-3 mb-2">
-                            <div class="w-16 h-16 bg-gradient-to-r from-honey-500 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
-                                <span class="text-3xl">🍯</span>
+                            <div class="w-16 h-16 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg">
+                                <span class="text-3xl">🍌</span>
                             </div>
                             <h1 class="text-3xl font-extrabold text-gray-800 leading-tight">
-                                <span class="text-honey-500">ใบเสร็จ</span> <span class="text-gray-700">แม่ดอนโอทอป</span>
+                                <span class="text-yellow-500">ใบเสร็จ</span> <span class="text-gray-700">แม่ดอนโอทอป</span>
                             </h1>
                         </div>
                         <p class="text-sm text-gray-500 mt-2">
                             ใบเสร็จนี้สร้างขึ้นจากระบบ ณ วันที่ <span id="receiptDate"></span>
                         </p>
                     </div>
-    
+
                     <div class="mb-8">
                         <h2 class="text-lg font-bold text-gray-700 mb-2">ข้อมูลลูกค้า</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 premium-card p-4 rounded-xl">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 bg-yellow-50 p-4 rounded-xl border border-yellow-200">
                             <p><strong>ชื่อ:</strong> <span id="receiptCustomerName"></span></p>
                             <p><strong>เบอร์โทร:</strong> <span id="receiptCustomerPhone"></span></p>
                             <p class="md:col-span-2"><strong>ที่อยู่:</strong> <span id="receiptCustomerAddress"></span></p>
                         </div>
                     </div>
-    
+
                     <div class="mb-8">
                         <h2 class="text-lg font-bold text-gray-700 mb-2">รายการสินค้า</h2>
                         <div class="overflow-x-auto">
                             <table class="min-w-full bg-white rounded-xl shadow-inner border border-gray-200">
-                                <thead class="bg-gray-50">
+                                <thead class="bg-yellow-50">
                                     <tr>
                                         <th class="p-3 text-left text-sm font-semibold text-gray-600">สินค้า</th>
                                         <th class="p-3 text-center text-sm font-semibold text-gray-600">จำนวน</th>
@@ -169,20 +198,20 @@
                             </table>
                         </div>
                     </div>
-    
-                    <div class="text-right border-t-2 border-dashed border-gray-300 pt-6">
+
+                    <div class="text-right border-t-2 border-dashed border-yellow-300 pt-6">
                         <p class="text-xl font-bold text-gray-700">ยอดรวมทั้งสิ้น:</p>
                         <p class="text-4xl font-extrabold text-green-600">
                             <span id="receiptTotal">0.00</span> บาท
                         </p>
                     </div>
-    
+
                     <div class="mt-8 flex justify-center">
                         <div id="receiptStatus" class="status-badge"></div>
                     </div>
                 </div>
             </div>
-    
+
             <div class="max-w-3xl mx-auto mt-6 flex flex-wrap justify-center gap-4 no-print">
                 <button onclick="window.location.reload()" class="btn-secondary">
                     <span class="text-lg mr-2">🏠</span> กลับหน้าหลัก
@@ -197,10 +226,17 @@
         </div>
     </main>
 
-    <footer class="bg-gray-100 py-6 mt-12 text-center text-gray-600">
-        <p>&copy; 2025 ร้านแม่ดอนโอทอป. All rights reserved.</p>
-    </footer>
-
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4 text-center">
+            <div class="text-6xl mb-4 animate-bounce-slow">🎉</div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">สั่งซื้อสำเร็จ!</h3>
+            <p class="text-gray-600 mb-6">ขอบคุณสำหรับการสั่งซื้อ เราจะติดต่อกลับไปเร็วๆ นี้</p>
+            <button onclick="closeModal()" class="btn-primary">
+                ตกลง
+            </button>
+        </div>
+    </div>
+    
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script type="module" src="scripts.js"></script>
 </body>
