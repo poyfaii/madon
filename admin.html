@@ -3,351 +3,98 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ร้านแม่ดอนโอทอป - ระบบจัดการออร์เดอร์ (Admin)</title>
+  <title>ร้านแม่ดอนโอทอป - Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"></script>
-  <script src="firebase-config.js" type="module"></script>
-  <script src="scripts.js" defer></script>
+  <style>
+    body { font-family: 'Kanit', sans-serif; }
+    .text-gradient { background: linear-gradient(to right, #10b981, #3b82f6); -webkit-background-clip: text; color: transparent; }
+  </style>
 </head>
-<body class="min-h-screen text-gray-800 font-kanit relative">
+<body class="bg-gray-50 text-gray-800 font-kanit">
 
-  <div class="floating-elements">
-    <div class="floating-banana">🍌</div>
-    <div class="floating-banana">🥭</div>
-    <div class="floating-banana">🍊</div>
-    <div class="floating-banana">🍌</div>
+  <!-- ส่วนหัว -->
+  <div class="bg-white shadow sticky top-0 z-10 p-4 flex justify-between items-center">
+    <h1 class="text-xl md:text-2xl font-extrabold text-gradient">📊 ร้านแม่ดอนโอทอป - ออร์เดอร์</h1>
+    <button onclick="refreshOrders()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow">
+      🔄 รีเฟรชข้อมูล
+    </button>
   </div>
 
-  <div id="adminDashboard" class="min-h-screen">
-    <div class="bg-white shadow-lg border-b-2 border-honey-400 sticky top-0 z-40">
-      <div class="max-w-6xl mx-auto px-4 py-4">
-        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 honey-gradient rounded-xl flex items-center justify-center shadow-lg">
-              <span class="text-2xl">🍌</span>
-            </div>
-            <div>
-              <h1 class="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-honey-600 via-amber-600 to-honey-700 bg-clip-text text-transparent">
-                ร้านแม่ดอนโอทอป
-              </h1>
-              <p class="text-sm text-gray-600">ระบบจัดการออร์เดอร์ 👨‍💼</p>
-            </div>
-          </div>
-          
-          <div class="flex items-center gap-3">
-            <div class="text-center sm:text-right">
-              <p class="text-xs text-gray-500">อัปเดตล่าสุด</p>
-              <p class="text-sm font-semibold text-gray-700" id="lastUpdate">-</p>
-            </div>
-            <button onclick="refreshOrders()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2 md:px-6 md:py-3 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 font-bold text-sm md:text-base">
-              <span class="text-lg mr-1 md:mr-2">🔄</span>
-              <span class="hidden sm:inline">รีเฟรชข้อมูล</span>
-              <span class="sm:hidden">รีเฟรช</span>
-            </button>
-          </div>
-        </div>
-      </div>
+  <!-- สถิติ -->
+  <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+    <div class="bg-green-100 p-4 rounded-xl text-center">
+      <p class="text-sm font-bold text-green-800">แสดงออร์เดอร์</p>
+      <p class="text-3xl font-black text-green-700" id="displayedOrdersCount">0</p>
     </div>
+  </div>
 
-    <div class="max-w-6xl mx-auto px-4 py-6 space-y-6">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="premium-card bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 rounded-3xl premium-shadow p-6 text-white card-hover neon-glow border-l-8 border-green-300">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-14 h-14 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center premium-shadow pulse-ring">
-              <span class="text-2xl icon-bounce">💰</span>
-            </div>
-            <div class="text-right">
-              <p class="text-green-100 text-sm font-bold">ยอดขายรวม</p>
-              <p class="text-xl md:text-2xl font-black" id="totalRevenue">0 บาท</p>
-              <div class="flex justify-end space-x-1 mt-1">
-                <div class="w-1 h-1 bg-green-200 rounded-full animate-pulse"></div>
-                <div class="w-1 h-1 bg-green-300 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-                <div class="w-1 h-1 bg-green-400 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-              </div>
-            </div>
-          </div>
-          <div class="bg-white bg-opacity-10 rounded-xl p-2 text-center">
-            <span class="text-xs font-bold text-green-100">📈 รายได้</span>
-          </div>
-        </div>
+  <!-- รายการออร์เดอร์ -->
+  <div class="max-w-6xl mx-auto px-4 pb-10">
+    <div id="ordersList" class="space-y-6"></div>
 
-        <div class="premium-card bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-600 rounded-3xl premium-shadow p-6 text-white card-hover neon-glow border-l-8 border-blue-300">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-14 h-14 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center premium-shadow pulse-ring">
-              <span class="text-2xl icon-bounce">📦</span>
-            </div>
-            <div class="text-right">
-              <p class="text-blue-100 text-sm font-bold">ออร์เดอร์ทั้งหมด</p>
-              <p class="text-xl md:text-2xl font-black" id="totalOrders">0</p>
-              <div class="flex justify-end space-x-1 mt-1">
-                <div class="w-1 h-1 bg-blue-200 rounded-full animate-pulse"></div>
-                <div class="w-1 h-1 bg-blue-300 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-                <div class="w-1 h-1 bg-blue-400 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-              </div>
-            </div>
-          </div>
-          <div class="bg-white bg-opacity-10 rounded-xl p-2 text-center">
-            <span class="text-xs font-bold text-blue-100">📊 คำสั่งซื้อ</span>
-          </div>
-        </div>
+    <div id="emptyOrdersState" class="hidden text-center py-16">
+      <div class="text-6xl text-gray-300 mb-4">📦</div>
+      <h3 class="text-xl font-bold text-gray-700 mb-2">ยังไม่มีออร์เดอร์</h3>
+      <p class="text-gray-500">เมื่อมีลูกค้าสั่งซื้อสินค้า ออร์เดอร์จะแสดงที่นี่</p>
+    </div>
+  </div>
 
-        <div class="premium-card bg-gradient-to-br from-purple-400 via-pink-500 to-rose-600 rounded-3xl premium-shadow p-6 text-white card-hover neon-glow border-l-8 border-purple-300">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-14 h-14 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center premium-shadow pulse-ring">
-              <span class="text-2xl icon-bounce">📅</span>
-            </div>
-            <div class="text-right">
-              <p class="text-purple-100 text-sm font-bold">ออร์เดอร์วันนี้</p>
-              <p class="text-xl md:text-2xl font-black" id="todayOrders">0</p>
-              <div class="flex justify-end space-x-1 mt-1">
-                <div class="w-1 h-1 bg-purple-200 rounded-full animate-pulse"></div>
-                <div class="w-1 h-1 bg-purple-300 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-                <div class="w-1 h-1 bg-purple-400 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-              </div>
-            </div>
-          </div>
-          <div class="bg-white bg-opacity-10 rounded-xl p-2 text-center">
-            <span class="text-xs font-bold text-purple-100">🗓️ วันนี้</span>
-          </div>
-        </div>
+  <!-- เชื่อมสคริปต์ -->
+  <script type="module">
+    import {
+      db,
+      collection,
+      getDocs,
+      orderBy,
+      query
+    } from './firebase-config.js';
 
-        <div class="premium-card bg-gradient-to-br from-orange-400 via-red-500 to-pink-600 rounded-3xl premium-shadow p-6 text-white card-hover neon-glow border-l-8 border-orange-300">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-14 h-14 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center premium-shadow pulse-ring">
-              <span class="text-2xl icon-bounce">⚡</span>
-            </div>
-            <div class="text-right">
-              <p class="text-orange-100 text-sm font-bold">รอดำเนินการ</p>
-              <p class="text-xl md:text-2xl font-black" id="pendingOrders">0</p>
-              <div class="flex justify-end space-x-1 mt-1">
-                <div class="w-1 h-1 bg-orange-200 rounded-full animate-pulse"></div>
-                <div class="w-1 h-1 bg-orange-300 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-                <div class="w-1 h-1 bg-orange-400 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-              </div>
-            </div>
-          </div>
-          <div class="bg-white bg-opacity-10 rounded-xl p-2 text-center">
-            <span class="text-xs font-bold text-orange-100">⏳ รอดำเนินการ</span>
-          </div>
-        </div>
-      </div>
+    async function loadOrders() {
+      const ordersList = document.getElementById("ordersList");
+      const emptyState = document.getElementById("emptyOrdersState");
+      const displayedOrdersCount = document.getElementById("displayedOrdersCount");
 
-      <div class="premium-card rounded-3xl premium-shadow p-8 card-hover border-l-8 border-indigo-500 neon-glow">
-        <div class="flex items-center gap-4 mb-8">
-          <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 rounded-2xl flex items-center justify-center premium-shadow pulse-ring">
-            <span class="text-2xl text-white icon-bounce">🔍</span>
-          </div>
-          <div class="flex-1">
-            <h2 class="text-2xl md:text-3xl font-black text-gradient">ค้นหาและกรองออร์เดอร์</h2>
-            <p class="text-base text-gray-700 font-medium">ค้นหาออร์เดอร์ด้วยข้อมูลลูกค้า</p>
-          </div>
-          <div class="status-badge bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 border-2 border-indigo-200">
-            <span class="text-sm">🎯</span> ค้นหา
-          </div>
-        </div>
+      try {
+        const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+        ordersList.innerHTML = "";
+        let count = 0;
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div class="space-y-2">
-            <label class="block text-sm font-bold text-gray-800 flex items-center gap-2">
-              <span class="text-lg icon-wiggle">👤</span> ชื่อลูกค้า
-            </label>
-            <input id="adminSearchInput" class="input-modern w-full px-5 py-4 text-base rounded-2xl focus:outline-none font-medium" placeholder="ค้นหาชื่อลูกค้า..." onkeypress="handleAdminSearchKeyPress(event)" />
-          </div>
-          <div class="space-y-2">
-            <label class="block text-sm font-bold text-gray-800 flex items-center gap-2">
-              <span class="text-lg icon-wiggle">📱</span> เบอร์โทร
-            </label>
-            <input id="adminPhoneInput" class="input-modern w-full px-5 py-4 text-base rounded-2xl focus:outline-none font-medium" placeholder="ค้นหาเบอร์โทร..." onkeypress="handleAdminSearchKeyPress(event)" />
-          </div>
-          <div class="space-y-2">
-            <label class="block text-sm font-bold text-gray-800 flex items-center gap-2">
-              <span class="text-lg icon-wiggle">📊</span> สถานะ
-            </label>
-            <select id="statusFilter" class="input-modern w-full px-5 py-4 text-base rounded-2xl focus:outline-none font-medium" onchange="filterOrders()">
-              <option value="">ทุกสถานะ</option>
-              <option value="รอดำเนินการ">รอดำเนินการ</option>
-              <option value="กำลังจัดส่ง">กำลังจัดส่ง</option>
-              <option value="จัดส่งแล้ว">จัดส่งแล้ว</option>
-              <option value="ยกเลิก">ยกเลิก</option>
-            </select>
-          </div>
-          <div class="space-y-2">
-            <label class="block text-sm font-bold text-gray-800 flex items-center gap-2">
-              <span class="text-lg icon-wiggle">🚀</span> ดำเนินการ
-            </label>
-            <button onclick="searchAdminOrders()" class="btn-primary w-full text-white font-black py-4 text-base rounded-2xl premium-shadow hover:neon-glow transform hover:scale-105 transition-all duration-500">
-              <span class="text-xl mr-2 icon-bounce">🔍</span>
-              ค้นหา
-            </button>
-          </div>
-        </div>
-      </div>
+        snapshot.forEach(doc => {
+          const order = doc.data();
+          count++;
 
-      <div class="premium-card rounded-3xl premium-shadow overflow-hidden neon-glow">
-        <div class="honey-gradient p-8">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <div class="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center premium-shadow pulse-ring">
-                <span class="text-2xl text-white icon-bounce">📋</span>
-              </div>
+          const div = document.createElement("div");
+          div.className = "border p-4 rounded-xl shadow-md bg-white";
+          div.innerHTML = `
+            <div class="flex justify-between items-center">
               <div>
-                <h2 class="text-2xl md:text-3xl font-black text-white">รายการออร์เดอร์</h2>
-                <p class="text-honey-100 text-base font-bold">จัดการคำสั่งซื้อทั้งหมด</p>
-                <div class="flex space-x-1 mt-2">
-                  <div class="w-2 h-2 bg-honey-200 rounded-full animate-pulse"></div>
-                  <div class="w-2 h-2 bg-honey-300 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-                  <div class="w-2 h-2 bg-honey-400 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-                </div>
+                <p class="font-bold text-lg">👤 ${order.customerName || "-"}</p>
+                <p class="text-sm text-gray-600">📱 ${order.customerPhone || "-"}</p>
+                <p class="text-sm text-gray-500">${order.status || "รอดำเนินการ"}</p>
               </div>
-            </div>
-            <div class="text-right">
-              <div class="bg-white bg-opacity-20 rounded-2xl p-4 premium-shadow">
-                <p class="text-honey-100 text-sm font-bold">ออร์เดอร์ที่แสดง</p>
-                <p class="text-2xl font-black text-white" id="displayedOrdersCount">0</p>
-                <div class="flex justify-center space-x-1 mt-1">
-                  <div class="w-1 h-1 bg-honey-200 rounded-full animate-pulse"></div>
-                  <div class="w-1 h-1 bg-honey-300 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-                  <div class="w-1 h-1 bg-honey-400 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-8">
-          <div id="ordersList" class="space-y-6"></div>
-          
-          <div id="emptyOrdersState" class="hidden text-center py-16">
-            <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6 premium-shadow animate-float">
-              <span class="text-4xl text-gray-400 icon-bounce">📦</span>
-            </div>
-            <h3 class="text-2xl font-black text-gray-700 mb-4 text-gradient">ยังไม่มีออร์เดอร์</h3>
-            <p class="text-gray-600 text-base font-medium mb-6">เมื่อมีลูกค้าสั่งซื้อสินค้า ออร์เดอร์จะแสดงที่นี่</p>
-            <div class="flex justify-center space-x-2">
-              <div class="w-3 h-3 bg-gray-400 rounded-full animate-pulse"></div>
-              <div class="w-3 h-3 bg-gray-500 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
-              <div class="w-3 h-3 bg-gray-600 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="receiptView" class="hidden min-h-screen bg-gray-50">
-    <div class="bg-white shadow-lg border-b sticky top-0 z-40 no-print">
-      <div class="max-w-2xl mx-auto px-4 py-4">
-        <div class="flex items-center justify-between">
-          <button onclick="backToAdmin()" class="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
-            <span class="text-xl">←</span>
-            <span class="font-medium">กลับ</span>
-          </button>
-          
-          <div class="flex items-center gap-3">
-            <button onclick="openPrintableReceipt()" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 font-medium text-sm">
-              <span class="text-base mr-1">🖨️</span>
-              พิมพ์
-            </button>
-            <button onclick="downloadReceiptAsImage()" class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 font-medium text-sm">
-              <span class="text-base mr-1">📸</span>
-              ดาวน์โหลด
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="max-w-2xl mx-auto p-4">
-      <div id="receiptContent" class="bg-white rounded-2xl shadow-xl overflow-hidden relative">
-        <div class="receipt-watermark">ร้าน แม่ดอนโอทอป</div>
-        <div class="receipt-content">
-          <div class="relative text-center py-6 px-4 bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 text-white rounded-t-2xl shadow-md">
-            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3 animate-bounce shadow-inner">
-              <span class="text-3xl">🍌</span>
-            </div>
-            <h1 class="text-3xl md:text-4xl font-black tracking-wide text-white drop-shadow-lg leading-tight">
-              ร้านแม่ดอนโอทอป
-            </h1>
-            <p class="text-sm md:text-base font-semibold text-yellow-100 mt-2" id="receiptDate"></p>
-          </div>
-          <div class="p-6 bg-gray-50 border-b-2 border-gray-100">
-            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span class="text-blue-500 text-xl">👤</span>
-              ข้อมูลลูกค้า
-            </h3>
-            <div class="space-y-3 text-sm">
-              <div class="flex items-start gap-3">
-                <span class="text-gray-500 font-medium min-w-[60px]">ชื่อ:</span>
-                <span id="receiptCustomerName" class="font-semibold text-gray-800"></span>
-              </div>
-              <div class="flex items-start gap-3">
-                <span class="text-gray-500 font-medium min-w-[60px]">โทร:</span>
-                <span id="receiptCustomerPhone" class="font-semibold text-gray-800"></span>
-              </div>
-              <div class="flex items-start gap-3">
-                <span class="text-gray-500 font-medium min-w-[60px]">ที่อยู่:</span>
-                <span id="receiptCustomerAddress" class="font-semibold text-gray-800"></span>
-              </div>
-            </div>
-          </div>
-          <div class="p-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span class="text-honey-500 text-xl">🍌</span>
-              รายการสินค้า
-            </h3>
-            <div class="overflow-x-auto">
-              <table class="w-full border-collapse">
-                <thead>
-                  <tr class="bg-gray-800 text-white">
-                    <th class="text-left p-3 rounded-tl-lg font-semibold text-sm">สินค้า</th>
-                    <th class="text-center p-3 font-semibold text-sm">จำนวน</th>
-                    <th class="text-center p-3 font-semibold text-sm">ราคา/หน่วย</th>
-                    <th class="text-right p-3 rounded-tr-lg font-semibold text-sm">รวม</th>
-                  </tr>
-                </thead>
-                <tbody id="receiptItems" class="bg-gray-50">
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-t-2 border-green-100">
-            <div class="flex justify-between items-center mb-4">
-              <span class="text-xl font-bold text-gray-800">ยอดรวมทั้งสิ้น:</span>
               <div class="text-right">
-                <span id="receiptTotal" class="text-2xl md:text-3xl font-bold text-green-600"></span>
-                <span class="text-xl font-bold text-gray-800 ml-2">บาท</span>
+                <p class="text-base font-bold text-green-600">${order.total || 0} บาท</p>
               </div>
             </div>
-            <div class="flex justify-center">
-              <div id="receiptStatus" class="status-badge bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200">
-                <span class="text-base">📦</span>
-                สถานะ: รอดำเนินการ
-              </div>
-            </div>
-          </div>
-          <div class="text-center mt-6 text-brown-700 text-lg font-semibold italic drop-shadow-sm tracking-wide">
-            ✨ ขอขอบคุณที่อุดหนุนสินค้าของเรา ✨
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+          `;
+          ordersList.appendChild(div);
+        });
 
-  <div id="loginButtonContainer" class="fixed top-6 right-6 z-50">
-    <button id="loginBtn" onclick="showLoginModal()" class="premium-card hover:neon-glow text-gray-800 px-6 py-3 md:px-8 md:py-4 rounded-2xl premium-shadow text-sm font-bold transition-all duration-500 transform hover:scale-110 pulse-ring">
-      <span class="text-xl mr-2 md:mr-3 icon-bounce">🔐</span>
-      <span class="hidden sm:inline text-gradient">เข้าสู่ระบบร้านค้า</span>
-      <span class="sm:hidden text-gradient">เข้าสู่ระบบ</span>
-    </button>
-    <button id="logoutBtn" onclick="logout()" class="hidden premium-card hover:bg-red-500 hover:bg-opacity-30 text-red-700 px-6 py-3 md:px-8 md:py-4 rounded-2xl premium-shadow text-sm font-bold transition-all duration-500 transform hover:scale-110">
-      <span class="text-xl mr-2 md:mr-3 icon-wiggle">🚪</span>
-      <span class="hidden sm:inline">ออกจากระบบ</span>
-      <span class="sm:hidden">ออก</span>
-    </button>
-  </div>
+        displayedOrdersCount.textContent = count;
+        emptyState.classList.toggle("hidden", count > 0);
+      } catch (error) {
+        console.error("เกิดข้อผิดพลาด:", error);
+        ordersList.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        displayedOrdersCount.textContent = "0";
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", loadOrders);
+    window.refreshOrders = loadOrders;
+  </script>
 </body>
 </html>
