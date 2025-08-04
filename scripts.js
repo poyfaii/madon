@@ -1,8 +1,17 @@
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+// Your web app's Firebase configuration
 const firebaseConfig = {
-    // ใส่ firebase config ของคุณที่นี่
+  apiKey: "AIzaSyCDAaW-OyL_13qkF7sCxXkMhpJyrOtntjg",
+  authDomain: "orders-3d979.firebaseapp.com",
+  databaseURL: "https://orders-3d979-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "orders-3d979",
+  storageBucket: "orders-3d979.firebasestorage.app",
+  messagingSenderId: "1048840913149",
+  appId: "1:1048840913149:web:4f1b772b853b602cc93e94",
+  measurementId: "G-P5JPR90CX8"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -12,7 +21,6 @@ const ordersRef = ref(database, 'orders');
 let allOrdersData = [];
 
 // --- Functions for index.html (Order Form) ---
-
 const statusMessage = document.getElementById('statusMessage');
 const cartItemsContainer = document.getElementById('cartItems');
 const cartSummary = document.getElementById('cartSummary');
@@ -24,23 +32,23 @@ const productWeightSelect = document.getElementById('productWeightSelect');
 const productWeightInput = document.getElementById('productWeight');
 let cart = [];
 
-export function selectProductName() {
+window.selectProductName = () => {
     productNameInput.value = '';
-}
+};
 
-export function clearProductSelect() {
+window.clearProductSelect = () => {
     productNameSelect.value = '';
-}
+};
 
-export function selectProductWeight() {
+window.selectProductWeight = () => {
     productWeightInput.value = '';
-}
+};
 
-export function clearWeightSelect() {
+window.clearWeightSelect = () => {
     productWeightSelect.value = '';
-}
+};
 
-export function addItem() {
+window.addItem = () => {
     const productName = productNameInput.value || productNameSelect.value;
     const productWeight = productWeightInput.value || productWeightSelect.value;
     const productQty = document.getElementById('productQty').value;
@@ -63,10 +71,11 @@ export function addItem() {
     renderCart();
     document.getElementById('productForm').reset();
     showStatusMessage('เพิ่มสินค้าลงในตะกร้าแล้ว', 'success');
-}
+};
 
 function renderCart() {
     let totalAmount = 0;
+    if (!cartItemsContainer) return;
     cartItemsContainer.innerHTML = '';
     const cartCount = document.getElementById('cartCount');
 
@@ -78,13 +87,13 @@ function renderCart() {
                 <p class="text-sm mt-2">เพิ่มกล้วยและสินค้าอื่นๆ เพื่อเริ่มสั่งซื้อ</p>
             </div>
         `;
-        cartSummary.classList.add('hidden');
-        cartCount.textContent = '0 รายการ';
+        if (cartSummary) cartSummary.classList.add('hidden');
+        if (cartCount) cartCount.textContent = '0 รายการ';
         return;
     }
 
-    cartSummary.classList.remove('hidden');
-    cartCount.textContent = `${cart.length} รายการ`;
+    if (cartSummary) cartSummary.classList.remove('hidden');
+    if (cartCount) cartCount.textContent = `${cart.length} รายการ`;
 
     cart.forEach((item, index) => {
         totalAmount += item.total;
@@ -103,18 +112,19 @@ function renderCart() {
         cartItemsContainer.appendChild(itemElement);
     });
 
-    document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+    const totalAmountEl = document.getElementById('totalAmount');
+    if (totalAmountEl) totalAmountEl.textContent = totalAmount.toFixed(2);
 }
 
-export function removeItem(index) {
+window.removeItem = (index) => {
     cart.splice(index, 1);
     renderCart();
-}
+};
 
-export function submitOrder() {
-    const customerName = document.getElementById('customerName').value;
-    const customerPhone = document.getElementById('customerPhone').value;
-    const customerAddress = document.getElementById('customerAddress').value;
+window.submitOrder = () => {
+    const customerName = document.getElementById('customerName')?.value;
+    const customerPhone = document.getElementById('customerPhone')?.value;
+    const customerAddress = document.getElementById('customerAddress')?.value;
 
     if (cart.length === 0) {
         showStatusMessage('กรุณาเพิ่มสินค้าในตะกร้าก่อน', 'error');
@@ -139,79 +149,85 @@ export function submitOrder() {
         .then(() => {
             showReceipt(orderData);
             cart = [];
-            document.getElementById('productForm').reset();
-            document.getElementById('customerName').value = '';
-            document.getElementById('customerPhone').value = '';
-            document.getElementById('customerAddress').value = '';
+            if (document.getElementById('productForm')) document.getElementById('productForm').reset();
+            if (document.getElementById('customerName')) document.getElementById('customerName').value = '';
+            if (document.getElementById('customerPhone')) document.getElementById('customerPhone').value = '';
+            if (document.getElementById('customerAddress')) document.getElementById('customerAddress').value = '';
             showStatusMessage('บันทึกออร์เดอร์เรียบร้อยแล้ว', 'success');
         })
         .catch((error) => {
             console.error("Error adding document: ", error);
             showStatusMessage('เกิดข้อผิดพลาดในการบันทึกออร์เดอร์', 'error');
         });
-}
+};
 
 function showStatusMessage(message, type) {
+    if (!statusMessage) return;
     statusMessage.textContent = message;
     statusMessage.className = `p-3 rounded-xl font-semibold mb-4 text-center ${type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
     statusMessage.classList.remove('hidden');
 }
 
 function showReceipt(orderData) {
+    if (!mainOrderForm || !receiptView) return;
     mainOrderForm.classList.add('hidden');
     receiptView.classList.remove('hidden');
 
-    document.getElementById('receiptDate').textContent = new Date().toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' });
-    document.getElementById('receiptCustomerName').textContent = orderData.customerName;
-    document.getElementById('receiptCustomerPhone').textContent = orderData.customerPhone;
-    document.getElementById('receiptCustomerAddress').textContent = orderData.customerAddress;
-    document.getElementById('receiptTotal').textContent = orderData.total.toFixed(2);
-
+    const receiptDate = document.getElementById('receiptDate');
+    const receiptCustomerName = document.getElementById('receiptCustomerName');
+    const receiptCustomerPhone = document.getElementById('receiptCustomerPhone');
+    const receiptCustomerAddress = document.getElementById('receiptCustomerAddress');
+    const receiptTotal = document.getElementById('receiptTotal');
     const receiptItemsContainer = document.getElementById('receiptItems');
-    receiptItemsContainer.innerHTML = '';
-    orderData.items.forEach(item => {
-        const itemElement = document.createElement('tr');
-        itemElement.innerHTML = `
-            <td class="p-3 text-left">${item.name} (${item.weight})</td>
-            <td class="p-3 text-center">${item.quantity}</td>
-            <td class="p-3 text-center">${item.price.toFixed(2)}</td>
-            <td class="p-3 text-right">${item.total.toFixed(2)}</td>
-        `;
-        receiptItemsContainer.appendChild(itemElement);
-    });
+
+    if (receiptDate) receiptDate.textContent = new Date().toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' });
+    if (receiptCustomerName) receiptCustomerName.textContent = orderData.customerName;
+    if (receiptCustomerPhone) receiptCustomerPhone.textContent = orderData.customerPhone;
+    if (receiptCustomerAddress) receiptCustomerAddress.textContent = orderData.customerAddress;
+    if (receiptTotal) receiptTotal.textContent = orderData.total.toFixed(2);
+
+    if (receiptItemsContainer) {
+        receiptItemsContainer.innerHTML = '';
+        orderData.items.forEach(item => {
+            const itemElement = document.createElement('tr');
+            itemElement.innerHTML = `
+                <td class="p-3 text-left">${item.name} (${item.weight})</td>
+                <td class="p-3 text-center">${item.quantity}</td>
+                <td class="p-3 text-center">${item.price.toFixed(2)}</td>
+                <td class="p-3 text-right">${item.total.toFixed(2)}</td>
+            `;
+            receiptItemsContainer.appendChild(itemElement);
+        });
+    }
 
     updateReceiptStatus(orderData.status);
 }
 
-export function openPrintableReceipt() {
+window.openPrintableReceipt = () => {
     const originalBody = document.body.innerHTML;
-    const receiptContent = document.getElementById('receiptContent').innerHTML;
-    document.body.innerHTML = `
-        <div class="print-container">
-            ${receiptContent}
-        </div>
-    `;
+    const receiptContent = document.getElementById('receiptContent')?.innerHTML;
+    if (!receiptContent) return;
+    document.body.innerHTML = `<div class="print-container">${receiptContent}</div>`;
     window.print();
     document.body.innerHTML = originalBody;
     window.location.reload();
-}
+};
 
-export function downloadReceiptAsImage() {
+window.downloadReceiptAsImage = () => {
     const receiptContent = document.getElementById('receiptContent');
+    if (!receiptContent) return;
     html2canvas(receiptContent, { scale: 2 }).then(canvas => {
         const link = document.createElement('a');
         link.download = `receipt_${new Date().getTime()}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
     });
-}
+};
 
 // --- Functions for admin.html (Dashboard) ---
-
 let currentOrderId = null;
-let currentOrderKey = null;
 
-export function listenForOrders() {
+window.listenForOrders = () => {
     onValue(ordersRef, (snapshot) => {
         const orders = snapshot.val();
         allOrdersData = orders ? Object.entries(orders).map(([key, value]) => ({ key, ...value })) : [];
@@ -220,38 +236,49 @@ export function listenForOrders() {
     }, {
         onlyOnce: false
     });
-}
+};
 
-export function updateDashboard() {
-    const totalRevenue = allOrdersData.reduce((sum, order) => sum + order.total, 0);
+window.updateDashboard = () => {
+    const totalRevenue = allOrdersData.filter(o => o.status !== 'ยกเลิก').reduce((sum, order) => sum + order.total, 0);
     const totalOrders = allOrdersData.length;
     const today = new Date().toISOString().slice(0, 10);
     const todayOrders = allOrdersData.filter(order => order.timestamp.slice(0, 10) === today).length;
     const pendingOrders = allOrdersData.filter(order => order.status === 'รอดำเนินการ').length;
 
-    document.getElementById('totalRevenue').textContent = `${totalRevenue.toLocaleString()} บาท`;
-    document.getElementById('totalOrders').textContent = totalOrders;
-    document.getElementById('todayOrders').textContent = todayOrders;
-    document.getElementById('pendingOrders').textContent = pendingOrders;
-    document.getElementById('displayedOrdersCount').textContent = allOrdersData.length;
-    document.getElementById('lastUpdate').textContent = new Date().toLocaleString('th-TH');
-}
+    const totalRevenueEl = document.getElementById('totalRevenue');
+    const totalOrdersEl = document.getElementById('totalOrders');
+    const todayOrdersEl = document.getElementById('todayOrders');
+    const pendingOrdersEl = document.getElementById('pendingOrders');
+    const displayedOrdersCountEl = document.getElementById('displayedOrdersCount');
+    const lastUpdateEl = document.getElementById('lastUpdate');
 
-export function renderOrders(filteredOrders = null) {
+    if (totalRevenueEl) totalRevenueEl.textContent = `${totalRevenue.toLocaleString()} บาท`;
+    if (totalOrdersEl) totalOrdersEl.textContent = totalOrders;
+    if (todayOrdersEl) todayOrdersEl.textContent = todayOrders;
+    if (pendingOrdersEl) pendingOrdersEl.textContent = pendingOrders;
+    if (displayedOrdersCountEl) displayedOrdersCountEl.textContent = allOrdersData.length;
+    if (lastUpdateEl) lastUpdateEl.textContent = new Date().toLocaleString('th-TH');
+};
+
+window.renderOrders = (filteredOrders = null) => {
     const ordersToRender = filteredOrders || allOrdersData;
     const orderListContainer = document.getElementById('orderList');
     const emptyOrdersState = document.getElementById('emptyOrdersState');
 
+    if (!orderListContainer || !emptyOrdersState) return;
+
     orderListContainer.innerHTML = '';
     if (ordersToRender.length === 0) {
         emptyOrdersState.classList.remove('hidden');
-        document.getElementById('displayedOrdersCount').textContent = 0;
+        const displayedOrdersCountEl = document.getElementById('displayedOrdersCount');
+        if (displayedOrdersCountEl) displayedOrdersCountEl.textContent = 0;
         return;
     } else {
         emptyOrdersState.classList.add('hidden');
     }
 
-    document.getElementById('displayedOrdersCount').textContent = ordersToRender.length;
+    const displayedOrdersCountEl = document.getElementById('displayedOrdersCount');
+    if (displayedOrdersCountEl) displayedOrdersCountEl.textContent = ordersToRender.length;
 
     ordersToRender.forEach(order => {
         const orderElement = document.createElement('div');
@@ -295,7 +322,7 @@ export function renderOrders(filteredOrders = null) {
         `;
         orderListContainer.appendChild(orderElement);
     });
-}
+};
 
 function getStatusBadge(status) {
     let colorClass = '';
@@ -322,14 +349,15 @@ function getStatusBadge(status) {
 }
 
 function formatDate(timestamp) {
+    if (!timestamp) return 'ไม่มีข้อมูล';
     const date = new Date(timestamp);
     return date.toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
 }
 
-export function filterOrders() {
-    const searchTerm = document.getElementById('adminSearchInput').value.toLowerCase();
-    const phoneTerm = document.getElementById('adminPhoneInput').value.toLowerCase();
-    const statusFilter = document.getElementById('statusFilter').value;
+window.filterOrders = () => {
+    const searchTerm = document.getElementById('adminSearchInput')?.value.toLowerCase() || '';
+    const phoneTerm = document.getElementById('adminPhoneInput')?.value.toLowerCase() || '';
+    const statusFilter = document.getElementById('statusFilter')?.value || '';
 
     const filtered = allOrdersData.filter(order => {
         const nameMatch = order.customerName.toLowerCase().includes(searchTerm);
@@ -339,9 +367,9 @@ export function filterOrders() {
     });
 
     renderOrders(filtered);
-}
+};
 
-export function openOrderDetail(orderKey) {
+window.openOrderDetail = (orderKey) => {
     const order = allOrdersData.find(o => o.key === orderKey);
     if (!order) return;
 
@@ -355,29 +383,34 @@ export function openOrderDetail(orderKey) {
     document.getElementById('orderStatusSelect').value = order.status;
 
     const itemsContainer = document.getElementById('modalOrderItems');
-    itemsContainer.innerHTML = '';
-    order.items.forEach(item => {
-        const row = document.createElement('tr');
-        row.className = 'border-t border-gray-100';
-        row.innerHTML = `
-            <td class="p-3">${item.name} (${item.weight})</td>
-            <td class="p-3 text-center">${item.quantity}</td>
-            <td class="p-3 text-right">${(item.price * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-        `;
-        itemsContainer.appendChild(row);
-    });
+    if (itemsContainer) {
+        itemsContainer.innerHTML = '';
+        order.items.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'border-t border-gray-100';
+            row.innerHTML = `
+                <td class="p-3">${item.name} (${item.weight})</td>
+                <td class="p-3 text-center">${item.quantity}</td>
+                <td class="p-3 text-right">${(item.price * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+            `;
+            itemsContainer.appendChild(row);
+        });
+    }
 
-    document.getElementById('orderDetailModal').classList.remove('hidden');
-    document.getElementById('orderDetailModal').classList.add('flex');
-}
+    const orderDetailModal = document.getElementById('orderDetailModal');
+    if (orderDetailModal) {
+      orderDetailModal.classList.remove('hidden');
+      orderDetailModal.classList.add('flex');
+    }
+};
 
-export function closeModal() {
-    document.getElementById('orderDetailModal').classList.add('hidden');
-    document.getElementById('orderDetailModal').classList.remove('flex');
+window.closeModal = () => {
+    document.getElementById('orderDetailModal')?.classList.add('hidden');
+    document.getElementById('orderDetailModal')?.classList.remove('flex');
     currentOrderId = null;
-}
+};
 
-export function updateOrderStatus() {
+window.updateOrderStatus = () => {
     if (!currentOrderId) return;
 
     const newStatus = document.getElementById('orderStatusSelect').value;
@@ -390,44 +423,37 @@ export function updateOrderStatus() {
     update(ref(database), updates)
         .then(() => {
             closeModal();
-            filterOrders(); // Re-render the orders to reflect the change
+            console.log("Status updated successfully.");
         })
         .catch((error) => {
             console.error("Error updating status: ", error);
             alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
         });
-}
+};
 
-export function refreshOrders() {
-    // onValue listener automatically refreshes, but this function can be used to manually trigger UI refresh
+window.refreshOrders = () => {
     filterOrders();
-}
+};
 
-// Global functions exposed for HTML
-window.login = login;
-window.logout = logout;
-window.handlePasswordKeyPress = handlePasswordKeyPress;
-window.handleAdminSearchKeyPress = handleAdminSearchKeyPress;
-window.searchAdminOrders = searchAdminOrders;
-window.filterOrders = filterOrders;
-window.refreshOrders = refreshOrders;
-window.openOrderDetail = openOrderDetail;
-window.closeModal = closeModal;
-window.updateOrderStatus = updateOrderStatus;
-window.listenForOrders = listenForOrders;
+window.handlePasswordKeyPress = (event) => {
+    if (event.key === 'Enter') {
+        window.login();
+    }
+};
 
-window.addItem = addItem;
-window.removeItem = removeItem;
-window.submitOrder = submitOrder;
-window.openPrintableReceipt = openPrintableReceipt;
-window.downloadReceiptAsImage = downloadReceiptAsImage;
-window.selectProductName = selectProductName;
-window.clearProductSelect = clearProductSelect;
-window.selectProductWeight = selectProductWeight;
-window.clearWeightSelect = clearWeightSelect;
+window.handleAdminSearchKeyPress = (event) => {
+    if (event.key === 'Enter') {
+        window.searchAdminOrders();
+    }
+};
+
+window.searchAdminOrders = () => {
+    window.filterOrders();
+};
 
 function updateReceiptStatus(status) {
     const statusDiv = document.getElementById('receiptStatus');
+    if (!statusDiv) return;
     statusDiv.textContent = `สถานะ: ${status}`;
     if (status === 'รอดำเนินการ') {
         statusDiv.className = 'status-badge bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200';
