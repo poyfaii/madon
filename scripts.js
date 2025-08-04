@@ -1,507 +1,441 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getDatabase, ref, push, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-analytics.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCDAaW-OyL_13qkF7sCxXkMhpJyrOtntjg",
-  authDomain: "orders-3d979.firebaseapp.com",
-  databaseURL: "https://orders-3d979-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "orders-3d979",
-  storageBucket: "orders-3d979.firebasestorage.app",
-  messagingSenderId: "1048840913149",
-  appId: "1:1048840913149:web:4f1b772b853b602cc93e94",
-  measurementId: "G-P5JPR90CX8"
+    // ใส่ firebase config ของคุณที่นี่
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
-const analytics = getAnalytics(app);
+const ordersRef = ref(database, 'orders');
 
-// Global state variables
-let items = [];
-let currentReceiptOrder = null;
-let currentOrderToUpdate = null;
+let allOrdersData = [];
 
-// --- DOM elements and event listeners ---
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('productForm')) {
-        // This is the index page
-        updateCartDisplay();
-        document.getElementById('productForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            addItem();
-        });
-    }
+// --- Functions for index.html (Order Form) ---
 
-    if (document.getElementById('orderList')) {
-        // This is the admin page
-        listenForOrders();
-        document.getElementById('orderDetailModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
-        document.getElementById('updateStatusBtn').addEventListener('click', updateOrderStatus);
-    }
-});
+const statusMessage = document.getElementById('statusMessage');
+const cartItemsContainer = document.getElementById('cartItems');
+const cartSummary = document.getElementById('cartSummary');
+const mainOrderForm = document.getElementById('mainOrderForm');
+const receiptView = document.getElementById('receiptView');
+const productNameSelect = document.getElementById('productNameSelect');
+const productNameInput = document.getElementById('productName');
+const productWeightSelect = document.getElementById('productWeightSelect');
+const productWeightInput = document.getElementById('productWeight');
+let cart = [];
 
-// --- General Functions ---
-window.selectProductName = function() {
-    const select = document.getElementById('productNameSelect');
-    const input = document.getElementById('productName');
-    if (select.value) {
-        input.value = select.value;
-    }
+export function selectProductName() {
+    productNameInput.value = '';
 }
 
-window.clearProductSelect = function() {
-    document.getElementById('productNameSelect').value = '';
+export function clearProductSelect() {
+    productNameSelect.value = '';
 }
 
-window.selectProductWeight = function() {
-    const select = document.getElementById('productWeightSelect');
-    const input = document.getElementById('productWeight');
-    if (select.value) {
-        input.value = select.value;
-    }
+export function selectProductWeight() {
+    productWeightInput.value = '';
 }
 
-window.clearWeightSelect = function() {
-    document.getElementById('productWeightSelect').value = '';
+export function clearWeightSelect() {
+    productWeightSelect.value = '';
 }
 
-window.showStatus = function(message, type) {
-    const statusDiv = document.getElementById('statusMessage');
-    if (!statusDiv) return;
-    statusDiv.className = type === 'success' ? 'status-success' : type === 'error' ? 'status-error' : 'status-info';
-    statusDiv.innerHTML = `<span class="text-xl">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span><span>${message}</span>`;
-    statusDiv.classList.remove('hidden');
-    
-    setTimeout(() => {
-        statusDiv.classList.add('hidden');
-    }, 3000);
-}
+export function addItem() {
+    const productName = productNameInput.value || productNameSelect.value;
+    const productWeight = productWeightInput.value || productWeightSelect.value;
+    const productQty = document.getElementById('productQty').value;
+    const productPrice = document.getElementById('productPrice').value;
 
-window.getStatusColor = function(status) {
-    switch(status) {
-      case 'รอดำเนินการ': return 'รอดำเนินการ';
-      case 'กำลังจัดส่ง': return 'กำลังจัดส่ง';
-      case 'จัดส่งแล้ว': return 'จัดส่งแล้ว';
-      case 'ยกเลิก': return 'ยกเลิก';
-      default: return '';
-    }
-}
-
-window.getStatusIcon = function(status) {
-    switch(status) {
-      case 'รอดำเนินการ': return '⏳';
-      case 'กำลังจัดส่ง': return '🚚';
-      case 'จัดส่งแล้ว': return '✅';
-      case 'ยกเลิก': return '❌';
-      default: return '📦';
-    }
-}
-
-window.closeModal = function() {
-    const modal = document.getElementById('orderDetailModal') || document.getElementById('successModal');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-}
-
-
-// --- Index Page Logic ---
-window.addItem = function() {
-    const name = document.getElementById('productName').value.trim() || document.getElementById('productNameSelect').value.trim();
-    const weight = document.getElementById('productWeight').value.trim() || document.getElementById('productWeightSelect').value.trim();
-    const qty = parseInt(document.getElementById('productQty').value);
-    const priceInput = document.getElementById('productPrice').value;
-    const price = priceInput === '' ? 0 : parseFloat(priceInput);
-
-    if (!name || isNaN(qty) || qty <= 0 || isNaN(price)) {
-        showStatus('กรุณากรอกชื่อสินค้า, จำนวน, และราคาให้ถูกต้อง', 'error');
-        return;
-    }
-    if (price < 0) {
-        showStatus('ราคาต้องไม่ติดลบ', 'error');
+    if (!productName || !productQty || !productPrice || !productWeight) {
+        showStatusMessage('กรุณากรอกข้อมูลสินค้าให้ครบ', 'error');
         return;
     }
 
     const item = {
-        id: Date.now(),
-        name: name,
-        size: weight || '-',
-        qty: qty,
-        price: price,
-        total: qty * price
+        name: productName,
+        weight: productWeight,
+        quantity: parseInt(productQty),
+        price: parseFloat(productPrice),
+        total: parseFloat(productQty) * parseFloat(productPrice)
     };
 
-    items.push(item);
-    updateCartDisplay();
-    clearForm();
-    showStatus('เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว!', 'success');
+    cart.push(item);
+    renderCart();
+    document.getElementById('productForm').reset();
+    showStatusMessage('เพิ่มสินค้าลงในตะกร้าแล้ว', 'success');
 }
 
-window.removeItem = function(id) {
-    items = items.filter(item => item.id !== id);
-    updateCartDisplay();
-    showStatus('ลบสินค้าออกจากตะกร้าแล้ว', 'success');
-}
-
-window.editItem = function(id) {
-    const item = items.find(item => item.id === id);
-    if (!item) return;
-
-    document.getElementById('productName').value = item.name;
-    document.getElementById('productNameSelect').value = '';
-
-    document.getElementById('productWeight').value = item.size === '-' ? '' : item.size;
-    document.getElementById('productWeightSelect').value = '';
-
-    document.getElementById('productQty').value = item.qty;
-    document.getElementById('productPrice').value = item.price === 0 ? '' : item.price;
-
-    items = items.filter(i => i.id !== id);
-    updateCartDisplay();
-    
-    showStatus('ข้อมูลสินค้าถูกโหลดในฟอร์มแล้ว กรุณาแก้ไขและเพิ่มใหม่', 'success');
-    document.getElementById('productForm').scrollIntoView({ behavior: 'smooth' });
-}
-
-window.updateCartDisplay = function() {
-    const cartItemsDiv = document.getElementById('cartItems');
+function renderCart() {
+    let totalAmount = 0;
+    cartItemsContainer.innerHTML = '';
     const cartCount = document.getElementById('cartCount');
-    const cartSummary = document.getElementById('cartSummary');
-    const totalAmount = document.getElementById('totalAmount');
 
-    if (!cartItemsDiv || !cartCount) return;
-
-    cartCount.textContent = items.length;
-
-    if (items.length === 0) {
-        cartItemsDiv.innerHTML = `
+    if (cart.length === 0) {
+        cartItemsContainer.innerHTML = `
             <div class="text-center py-12 text-gray-500">
                 <div class="text-6xl mb-4 animate-bounce-slow">🍌</div>
                 <p class="text-xl font-semibold">ตะกร้าว่างเปล่า</p>
                 <p class="text-sm mt-2">เพิ่มกล้วยและสินค้าอื่นๆ เพื่อเริ่มสั่งซื้อ</p>
             </div>
         `;
-        if (cartSummary) cartSummary.classList.add('hidden');
+        cartSummary.classList.add('hidden');
+        cartCount.textContent = '0 รายการ';
         return;
     }
 
-    let cartHTML = '';
-    let total = 0;
+    cartSummary.classList.remove('hidden');
+    cartCount.textContent = `${cart.length} รายการ`;
 
-    items.forEach(item => {
-        total += item.total;
-        cartHTML += `
-            <div class="cart-item">
-                <div class="flex justify-between items-start mb-3">
-                    <div class="flex-1">
-                        <h4 class="font-bold text-lg text-gray-800">${item.name}</h4>
-                        <p class="text-gray-600">${item.size}</p>
-                    </div>
-                    <div class="flex gap-2 ml-4">
-                        <button onclick="editItem(${item.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-all duration-300 hover:scale-105" title="แก้ไขสินค้า">
-                            ✏️
-                        </button>
-                        <button onclick="removeItem(${item.id})" class="btn-danger" title="ลบสินค้า">
-                            🗑️
-                        </button>
-                    </div>
-                </div>
-                <div class="flex justify-between items-center">
-                    <div class="text-sm text-gray-600">
-                        จำนวน: <span class="font-semibold">${item.qty}</span> × 
-                        <span class="font-semibold">${item.price.toFixed(2)}</span> บาท
-                    </div>
-                    <div class="text-lg font-bold text-yellow-600">
-                        ${item.total.toFixed(2)} บาท
-                    </div>
-                </div>
+    cart.forEach((item, index) => {
+        totalAmount += item.total;
+        const itemElement = document.createElement('div');
+        itemElement.className = 'cart-item';
+        itemElement.innerHTML = `
+            <div class="flex-1">
+                <p class="font-bold text-gray-800">${item.name}</p>
+                <p class="text-sm text-gray-500">${item.weight} x ${item.quantity}</p>
+            </div>
+            <div class="text-right">
+                <p class="font-semibold text-gray-700">${item.total.toFixed(2)} บาท</p>
+                <button onclick="removeItem(${index})" class="text-red-500 text-xs hover:text-red-700 transition-colors">ลบ</button>
             </div>
         `;
+        cartItemsContainer.appendChild(itemElement);
     });
 
-    cartItemsDiv.innerHTML = cartHTML;
-    totalAmount.textContent = total.toFixed(2) + ' บาท';
-    if (cartSummary) cartSummary.classList.remove('hidden');
+    document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
 }
 
-function clearForm() {
-    document.getElementById('productName').value = '';
-    document.getElementById('productNameSelect').value = '';
-    document.getElementById('productWeight').value = '';
-    document.getElementById('productWeightSelect').value = '';
-    document.getElementById('productQty').value = '1';
-    document.getElementById('productPrice').value = '';
+export function removeItem(index) {
+    cart.splice(index, 1);
+    renderCart();
 }
 
-window.submitOrder = async function() {
-    const customerName = document.getElementById('customerName').value.trim();
-    const customerPhone = document.getElementById('customerPhone').value.trim();
-    const customerAddress = document.getElementById('customerAddress').value.trim();
+export function submitOrder() {
+    const customerName = document.getElementById('customerName').value;
+    const customerPhone = document.getElementById('customerPhone').value;
+    const customerAddress = document.getElementById('customerAddress').value;
 
-    if (items.length === 0) {
-        showStatus('กรุณาเพิ่มสินค้าลงตะกร้าก่อนสั่งซื้อ', 'error');
+    if (cart.length === 0) {
+        showStatusMessage('กรุณาเพิ่มสินค้าในตะกร้าก่อน', 'error');
+        return;
+    }
+    if (!customerName || !customerPhone || !customerAddress) {
+        showStatusMessage('กรุณากรอกข้อมูลลูกค้าให้ครบ', 'error');
         return;
     }
 
-    const totalAmount = items.reduce((sum, item) => sum + item.total, 0);
     const orderData = {
-        customer: {
-            name: customerName || 'ไม่ระบุชื่อ',
-            phone: customerPhone || 'ไม่ระบุเบอร์',
-            address: customerAddress || 'ไม่ระบุที่อยู่'
-        },
-        items: items,
-        totalAmount: totalAmount,
-        orderDate: new Date().toISOString(),
-        status: 'รอดำเนินการ'
+        customerName: customerName,
+        customerPhone: customerPhone,
+        customerAddress: customerAddress,
+        items: cart,
+        total: cart.reduce((sum, item) => sum + item.total, 0),
+        status: 'รอดำเนินการ',
+        timestamp: new Date().toISOString()
     };
 
-    showStatus('กำลังบันทึกออร์เดอร์...', 'info');
-    
-    try {
-        const ordersRef = ref(database, 'orders');
-        const newOrderRef = push(ordersRef);
-        await set(newOrderRef, orderData);
-        showStatus("บันทึกออร์เดอร์สำเร็จ ✅", "success");
-        
-        showReceiptView({ id: newOrderRef.key, ...orderData });
-
-        items = [];
-        updateCartDisplay();
-        document.getElementById('customerName').value = '';
-        document.getElementById('customerPhone').value = '';
-        document.getElementById('customerAddress').value = '';
-    } catch (error) {
-        console.error("Error saving order:", error);
-        showStatus("เกิดข้อผิดพลาดในการบันทึกออร์เดอร์", "error");
-    }
+    push(ordersRef, orderData)
+        .then(() => {
+            showReceipt(orderData);
+            cart = [];
+            document.getElementById('productForm').reset();
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('customerAddress').value = '';
+            showStatusMessage('บันทึกออร์เดอร์เรียบร้อยแล้ว', 'success');
+        })
+        .catch((error) => {
+            console.error("Error adding document: ", error);
+            showStatusMessage('เกิดข้อผิดพลาดในการบันทึกออร์เดอร์', 'error');
+        });
 }
 
-// --- Receipt functions ---
-window.showReceiptView = function(order) {
-    currentReceiptOrder = order;
-    document.getElementById('mainOrderForm').classList.add('hidden');
-    const receiptView = document.getElementById('receiptView');
+function showStatusMessage(message, type) {
+    statusMessage.textContent = message;
+    statusMessage.className = `p-3 rounded-xl font-semibold mb-4 text-center ${type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
+    statusMessage.classList.remove('hidden');
+}
+
+function showReceipt(orderData) {
+    mainOrderForm.classList.add('hidden');
     receiptView.classList.remove('hidden');
 
-    document.getElementById('receiptDate').textContent = new Date(order.orderDate).toLocaleString('th-TH');
-    document.getElementById('receiptCustomerName').textContent = order.customer?.name || 'ไม่ระบุชื่อ';
-    document.getElementById('receiptCustomerPhone').textContent = order.customer?.phone || 'ไม่ระบุเบอร์';
-    document.getElementById('receiptCustomerAddress').textContent = order.customer?.address || 'ไม่ระบุที่อยู่';
+    document.getElementById('receiptDate').textContent = new Date().toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' });
+    document.getElementById('receiptCustomerName').textContent = orderData.customerName;
+    document.getElementById('receiptCustomerPhone').textContent = orderData.customerPhone;
+    document.getElementById('receiptCustomerAddress').textContent = orderData.customerAddress;
+    document.getElementById('receiptTotal').textContent = orderData.total.toFixed(2);
 
-    const receiptItems = document.getElementById('receiptItems');
-    receiptItems.innerHTML = order.items?.map(item => `
-        <tr class="border-b border-gray-200">
-          <td class="p-3 text-sm font-medium">${item.name}${item.size && item.size !== '-' ? ` (${item.size})` : ''}</td>
-          <td class="p-3 text-sm text-center">${item.qty}</td>
-          <td class="p-3 text-sm text-center">${item.price?.toFixed(2) || '0.00'}</td>
-          <td class="p-3 text-sm text-right font-semibold text-green-600">${item.total?.toFixed(2) || '0.00'}</td>
-        </tr>
-    `).join('') || '<tr><td colspan="4" class="p-6 text-center text-gray-500">ไม่มีรายการสินค้า</td></tr>';
+    const receiptItemsContainer = document.getElementById('receiptItems');
+    receiptItemsContainer.innerHTML = '';
+    orderData.items.forEach(item => {
+        const itemElement = document.createElement('tr');
+        itemElement.innerHTML = `
+            <td class="p-3 text-left">${item.name} (${item.weight})</td>
+            <td class="p-3 text-center">${item.quantity}</td>
+            <td class="p-3 text-center">${item.price.toFixed(2)}</td>
+            <td class="p-3 text-right">${item.total.toFixed(2)}</td>
+        `;
+        receiptItemsContainer.appendChild(itemElement);
+    });
 
-    document.getElementById('receiptTotal').textContent = order.totalAmount?.toFixed(2) || '0.00';
-
-    const statusColor = getStatusColor(order.status || 'รอดำเนินการ');
-    const statusIcon = getStatusIcon(order.status || 'รอดำเนินการ');
-    const receiptStatus = document.getElementById('receiptStatus');
-    receiptStatus.className = `status-badge ${statusColor}`;
-    receiptStatus.innerHTML = `<span class="text-base">${statusIcon}</span> สถานะ: ${order.status || 'รอดำเนินการ'}`;
+    updateReceiptStatus(orderData.status);
 }
 
-window.openPrintableReceipt = function() {
-    const receiptContent = document.getElementById("receiptContent");
-    if (!receiptContent) return;
-
-    const win = window.open('', '_blank');
-    win.document.write(`
-    <html>
-    <head>
-      <title>ใบเสร็จร้านแม่ดอนโอทอป</title>
-      <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="styles.css">
-      <script src="https://cdn.tailwindcss.com"></script>
-      <style>
-        body { margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: 'Kanit', sans-serif; }
-        #receiptContent { max-width: 700px; margin: auto; padding: 20px; background: white; }
-        @page { size: A4; margin: 20mm; }
-        @media print { .no-print { display: none !important; } .receipt-watermark { opacity: 0.04 !important; } }
-      </style>
-    </head>
-    <body onload="window.print();">
-      ${receiptContent.outerHTML}
-    </body>
-    </html>
-    `);
-    win.document.close();
+export function openPrintableReceipt() {
+    const originalBody = document.body.innerHTML;
+    const receiptContent = document.getElementById('receiptContent').innerHTML;
+    document.body.innerHTML = `
+        <div class="print-container">
+            ${receiptContent}
+        </div>
+    `;
+    window.print();
+    document.body.innerHTML = originalBody;
+    window.location.reload();
 }
 
-window.downloadReceiptAsImage = async function() {
-    if (!currentReceiptOrder) return;
+export function downloadReceiptAsImage() {
     const receiptContent = document.getElementById('receiptContent');
-    if (!receiptContent) {
-        showStatus('ไม่พบเนื้อหาใบเสร็จ', 'error');
-        return;
-    }
-    showStatus('กำลังสร้างรูปภาพ...', 'info');
-    try {
-        const canvas = await html2canvas(receiptContent, {
-            backgroundColor: '#ffffff',
-            scale: 2,
-            useCORS: true
-        });
-        const customerName = currentReceiptOrder.customer?.name?.trim() || 'ลูกค้า';
-        const sanitizedName = customerName.replace(/[\\/:*?"<>|]/g, '');
-        const dateStr = new Date().toISOString().split('T')[0];
+    html2canvas(receiptContent, { scale: 2 }).then(canvas => {
         const link = document.createElement('a');
+        link.download = `receipt_${new Date().getTime()}.png`;
         link.href = canvas.toDataURL('image/png');
-        link.download = `ใบเสร็จ-${sanitizedName}-${dateStr}.png`;
         link.click();
-        showStatus(`ดาวน์โหลดใบเสร็จของ ${sanitizedName} เรียบร้อยแล้ว ✅`, 'success');
-    } catch (error) {
-        console.error('เกิดข้อผิดพลาดในการสร้างรูปภาพใบเสร็จ:', error);
-        showStatus('เกิดข้อผิดพลาดในการดาวน์โหลดรูปภาพ', 'error');
-    }
+    });
 }
 
-// --- Admin Page Logic ---
-window.listenForOrders = function() {
-    const ordersRef = ref(database, 'orders');
+// --- Functions for admin.html (Dashboard) ---
+
+let currentOrderId = null;
+let currentOrderKey = null;
+
+export function listenForOrders() {
     onValue(ordersRef, (snapshot) => {
         const orders = snapshot.val();
-        renderOrders(orders);
+        allOrdersData = orders ? Object.entries(orders).map(([key, value]) => ({ key, ...value })) : [];
+        renderOrders();
+        updateDashboard();
+    }, {
+        onlyOnce: false
     });
 }
 
-window.renderOrders = function(orders) {
-    const orderListDiv = document.getElementById('orderList');
-    if (!orderListDiv) return;
+export function updateDashboard() {
+    const totalRevenue = allOrdersData.reduce((sum, order) => sum + order.total, 0);
+    const totalOrders = allOrdersData.length;
+    const today = new Date().toISOString().slice(0, 10);
+    const todayOrders = allOrdersData.filter(order => order.timestamp.slice(0, 10) === today).length;
+    const pendingOrders = allOrdersData.filter(order => order.status === 'รอดำเนินการ').length;
 
-    if (!orders) {
-        orderListDiv.innerHTML = `
-            <div class="text-center py-12 text-gray-500">
-                <div class="text-6xl mb-4 animate-bounce-slow">📦</div>
-                <p class="text-xl font-semibold">ไม่มีออร์เดอร์ในระบบ</p>
-                <p class="text-sm mt-2">ออร์เดอร์ที่ลูกค้าสั่งจะแสดงที่นี่</p>
-            </div>
-        `;
+    document.getElementById('totalRevenue').textContent = `${totalRevenue.toLocaleString()} บาท`;
+    document.getElementById('totalOrders').textContent = totalOrders;
+    document.getElementById('todayOrders').textContent = todayOrders;
+    document.getElementById('pendingOrders').textContent = pendingOrders;
+    document.getElementById('displayedOrdersCount').textContent = allOrdersData.length;
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleString('th-TH');
+}
+
+export function renderOrders(filteredOrders = null) {
+    const ordersToRender = filteredOrders || allOrdersData;
+    const orderListContainer = document.getElementById('orderList');
+    const emptyOrdersState = document.getElementById('emptyOrdersState');
+
+    orderListContainer.innerHTML = '';
+    if (ordersToRender.length === 0) {
+        emptyOrdersState.classList.remove('hidden');
+        document.getElementById('displayedOrdersCount').textContent = 0;
         return;
+    } else {
+        emptyOrdersState.classList.add('hidden');
     }
 
-    let orderHTML = '';
-    const sortedOrders = Object.entries(orders).sort(([, a], [, b]) => new Date(b.orderDate) - new Date(a.orderDate));
+    document.getElementById('displayedOrdersCount').textContent = ordersToRender.length;
 
-    sortedOrders.forEach(([orderId, order]) => {
-        const statusColor = getStatusColor(order.status);
-        const statusIcon = getStatusIcon(order.status);
-        const orderDate = new Date(order.orderDate).toLocaleString('th-TH');
+    ordersToRender.forEach(order => {
+        const orderElement = document.createElement('div');
+        orderElement.className = 'premium-card p-6 md:p-8 rounded-3xl premium-shadow border-l-8 card-hover transition-transform duration-300 transform hover:scale-[1.01]';
         
-        orderHTML += `
-            <div class="order-card flex flex-col md:flex-row justify-between items-start md:items-center">
-                <div class="flex-1 mb-4 md:mb-0">
-                    <div class="flex items-center gap-3 mb-1">
-                        <span class="text-xl font-bold text-yellow-600">#${orderId.substring(0, 8)}...</span>
-                        <div class="status-badge ${statusColor}">
-                            <span class="text-sm">${statusIcon}</span>
-                            <span>${order.status}</span>
-                        </div>
-                    </div>
-                    <p class="text-lg font-medium text-gray-800">ผู้สั่ง: ${order.customer?.name || 'ไม่ระบุ'}</p>
-                    <p class="text-sm text-gray-500 mt-1">สั่งเมื่อ: ${orderDate}</p>
+        let statusColor = '';
+        if (order.status === 'รอดำเนินการ') {
+            statusColor = 'border-orange-500';
+        } else if (order.status === 'กำลังจัดส่ง') {
+            statusColor = 'border-blue-500';
+        } else if (order.status === 'จัดส่งแล้ว') {
+            statusColor = 'border-green-500';
+        } else if (order.status === 'ยกเลิก') {
+            statusColor = 'border-red-500';
+        }
+        orderElement.classList.add(statusColor);
+
+        orderElement.innerHTML = `
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs text-gray-500 mb-1">
+                        รหัส: <span class="font-mono text-gray-600">${order.key.substring(0, 8)}</span>
+                    </p>
+                    <p class="text-xl font-bold text-gray-800 truncate">${order.customerName}</p>
+                    <p class="text-sm text-gray-600 truncate">${order.customerPhone}</p>
                 </div>
-                <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-                    <button onclick="showOrderDetail('${orderId}')" class="btn-secondary w-full md:w-auto">
-                        <span class="text-lg">👁️</span> ดูรายละเอียด
-                    </button>
-                    <button onclick="copyOrderDetails('${orderId}')" class="btn-primary w-full md:w-auto">
-                        <span class="text-lg">📋</span> คัดลอก
-                    </button>
+                <div class="text-right flex-shrink-0">
+                    <p class="text-xs text-gray-500 mb-1">ยอดรวม</p>
+                    <p class="text-2xl font-black text-green-600">${order.total.toLocaleString(undefined, { minimumFractionDigits: 2 })} บาท</p>
                 </div>
             </div>
+            <div class="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-t border-gray-200 pt-4">
+                <div class="flex items-center gap-2">
+                    ${getStatusBadge(order.status)}
+                    <span class="text-sm text-gray-500">สั่งเมื่อ: ${formatDate(order.timestamp)}</span>
+                </div>
+                <button onclick="openOrderDetail('${order.key}')" class="btn-secondary px-6 py-3 text-sm font-bold w-full sm:w-auto">
+                    <span class="text-lg mr-2">🔍</span> ดูรายละเอียด
+                </button>
+            </div>
         `;
+        orderListContainer.appendChild(orderElement);
+    });
+}
+
+function getStatusBadge(status) {
+    let colorClass = '';
+    let icon = '';
+    if (status === 'รอดำเนินการ') {
+        colorClass = 'bg-orange-100 text-orange-700';
+        icon = '⏳';
+    } else if (status === 'กำลังจัดส่ง') {
+        colorClass = 'bg-blue-100 text-blue-700';
+        icon = '🚚';
+    } else if (status === 'จัดส่งแล้ว') {
+        colorClass = 'bg-green-100 text-green-700';
+        icon = '✅';
+    } else if (status === 'ยกเลิก') {
+        colorClass = 'bg-red-100 text-red-700';
+        icon = '❌';
+    }
+    return `
+        <div class="status-badge ${colorClass}">
+            <span class="text-base">${icon}</span>
+            <span class="text-sm font-semibold">${status}</span>
+        </div>
+    `;
+}
+
+function formatDate(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+export function filterOrders() {
+    const searchTerm = document.getElementById('adminSearchInput').value.toLowerCase();
+    const phoneTerm = document.getElementById('adminPhoneInput').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+
+    const filtered = allOrdersData.filter(order => {
+        const nameMatch = order.customerName.toLowerCase().includes(searchTerm);
+        const phoneMatch = order.customerPhone.includes(phoneTerm);
+        const statusMatch = statusFilter ? order.status === statusFilter : true;
+        return nameMatch && phoneMatch && statusMatch;
     });
 
-    orderListDiv.innerHTML = orderHTML;
+    renderOrders(filtered);
 }
 
-window.showOrderDetail = function(orderId) {
-    const ordersRef = ref(database, `orders/${orderId}`);
-    onValue(ordersRef, (snapshot) => {
-        const order = snapshot.val();
-        if (order) {
-            currentOrderToUpdate = { id: orderId, ...order };
-            document.getElementById('orderIdDisplay').textContent = `#${orderId.substring(0, 8)}`;
-            document.getElementById('modalCustomerName').textContent = order.customer?.name || 'ไม่ระบุชื่อ';
-            document.getElementById('modalCustomerPhone').textContent = order.customer?.phone || 'ไม่ระบุเบอร์';
-            document.getElementById('modalCustomerAddress').textContent = order.customer?.address || 'ไม่ระบุที่อยู่';
-            document.getElementById('modalTotalAmount').textContent = order.totalAmount?.toFixed(2) || '0.00';
+export function openOrderDetail(orderKey) {
+    const order = allOrdersData.find(o => o.key === orderKey);
+    if (!order) return;
 
-            const modalOrderItems = document.getElementById('modalOrderItems');
-            modalOrderItems.innerHTML = order.items?.map(item => `
-                <tr class="border-b border-gray-200">
-                    <td class="p-3 text-sm">${item.name} (${item.size || '-'})</td>
-                    <td class="p-3 text-sm text-center">${item.qty}</td>
-                    <td class="p-3 text-sm text-right">${(item.qty * item.price).toFixed(2)}</td>
-                </tr>
-            `).join('') || '<tr><td colspan="3" class="p-4 text-center text-gray-500">ไม่มีรายการสินค้า</td></tr>';
-            
-            document.getElementById('orderStatusSelect').value = order.status;
+    currentOrderId = orderKey;
+    
+    document.getElementById('orderIdDisplay').textContent = orderKey.substring(0, 8);
+    document.getElementById('modalCustomerName').textContent = order.customerName;
+    document.getElementById('modalCustomerPhone').textContent = order.customerPhone;
+    document.getElementById('modalCustomerAddress').textContent = order.customerAddress;
+    document.getElementById('modalTotalAmount').textContent = order.total.toLocaleString(undefined, { minimumFractionDigits: 2 });
+    document.getElementById('orderStatusSelect').value = order.status;
 
-            document.getElementById('orderDetailModal').classList.remove('hidden');
-            document.getElementById('orderDetailModal').classList.add('flex');
-        }
-    }, { onlyOnce: true });
+    const itemsContainer = document.getElementById('modalOrderItems');
+    itemsContainer.innerHTML = '';
+    order.items.forEach(item => {
+        const row = document.createElement('tr');
+        row.className = 'border-t border-gray-100';
+        row.innerHTML = `
+            <td class="p-3">${item.name} (${item.weight})</td>
+            <td class="p-3 text-center">${item.quantity}</td>
+            <td class="p-3 text-right">${(item.price * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+        `;
+        itemsContainer.appendChild(row);
+    });
+
+    document.getElementById('orderDetailModal').classList.remove('hidden');
+    document.getElementById('orderDetailModal').classList.add('flex');
 }
 
-window.updateOrderStatus = async function() {
-    if (!currentOrderToUpdate) return;
+export function closeModal() {
+    document.getElementById('orderDetailModal').classList.add('hidden');
+    document.getElementById('orderDetailModal').classList.remove('flex');
+    currentOrderId = null;
+}
+
+export function updateOrderStatus() {
+    if (!currentOrderId) return;
+
     const newStatus = document.getElementById('orderStatusSelect').value;
-    const orderId = currentOrderToUpdate.id;
+    const orderToUpdate = allOrdersData.find(o => o.key === currentOrderId);
+    if (!orderToUpdate) return;
 
     const updates = {};
-    updates[`/orders/${orderId}/status`] = newStatus;
+    updates['/orders/' + currentOrderId + '/status'] = newStatus;
 
-    try {
-        await update(ref(database), updates);
-        showStatus('อัปเดตสถานะสำเร็จ!', 'success');
-        closeModal();
-    } catch (error) {
-        console.error("Error updating order status:", error);
-        showStatus('เกิดข้อผิดพลาดในการอัปเดตสถานะ', 'error');
-    }
+    update(ref(database), updates)
+        .then(() => {
+            closeModal();
+            filterOrders(); // Re-render the orders to reflect the change
+        })
+        .catch((error) => {
+            console.error("Error updating status: ", error);
+            alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        });
 }
 
-window.copyOrderDetails = function(orderId) {
-    const ordersRef = ref(database, `orders/${orderId}`);
-    onValue(ordersRef, (snapshot) => {
-        const order = snapshot.val();
-        if (order) {
-            let textToCopy = `📋 รายละเอียดออร์เดอร์ #${orderId.substring(0, 8)}\n`;
-            textToCopy += `-------------------------------\n`;
-            textToCopy += `👤 ชื่อลูกค้า: ${order.customer?.name || '-'}\n`;
-            textToCopy += `📞 เบอร์โทร: ${order.customer?.phone || '-'}\n`;
-            textToCopy += `🏠 ที่อยู่: ${order.customer?.address || '-'}\n\n`;
-            textToCopy += `รายการสินค้า:\n`;
-            order.items.forEach(item => {
-                textToCopy += ` - ${item.name} (${item.size || '-'}): ${item.qty} ชิ้น x ${item.price.toFixed(2)} บาท = ${(item.qty * item.price).toFixed(2)} บาท\n`;
-            });
-            textToCopy += `\n💰 ยอดรวม: ${order.totalAmount.toFixed(2)} บาท\n`;
-            textToCopy += `🗓️ สถานะ: ${order.status}\n`;
+export function refreshOrders() {
+    // onValue listener automatically refreshes, but this function can be used to manually trigger UI refresh
+    filterOrders();
+}
 
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showStatus('คัดลอกรายละเอียดออร์เดอร์แล้ว!', 'success');
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
-                showStatus('ไม่สามารถคัดลอกได้', 'error');
-            });
-        }
-    }, { onlyOnce: true });
+// Global functions exposed for HTML
+window.login = login;
+window.logout = logout;
+window.handlePasswordKeyPress = handlePasswordKeyPress;
+window.handleAdminSearchKeyPress = handleAdminSearchKeyPress;
+window.searchAdminOrders = searchAdminOrders;
+window.filterOrders = filterOrders;
+window.refreshOrders = refreshOrders;
+window.openOrderDetail = openOrderDetail;
+window.closeModal = closeModal;
+window.updateOrderStatus = updateOrderStatus;
+window.listenForOrders = listenForOrders;
+
+window.addItem = addItem;
+window.removeItem = removeItem;
+window.submitOrder = submitOrder;
+window.openPrintableReceipt = openPrintableReceipt;
+window.downloadReceiptAsImage = downloadReceiptAsImage;
+window.selectProductName = selectProductName;
+window.clearProductSelect = clearProductSelect;
+window.selectProductWeight = selectProductWeight;
+window.clearWeightSelect = clearWeightSelect;
+
+function updateReceiptStatus(status) {
+    const statusDiv = document.getElementById('receiptStatus');
+    statusDiv.textContent = `สถานะ: ${status}`;
+    if (status === 'รอดำเนินการ') {
+        statusDiv.className = 'status-badge bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200';
+    } else if (status === 'กำลังจัดส่ง') {
+        statusDiv.className = 'status-badge bg-gradient-to-r from-yellow-100 to-amber-100 text-amber-800 border border-amber-200';
+    } else if (status === 'จัดส่งแล้ว') {
+        statusDiv.className = 'status-badge bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200';
+    } else if (status === 'ยกเลิก') {
+        statusDiv.className = 'status-badge bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200';
+    }
 }
