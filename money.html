@@ -271,7 +271,7 @@
 
     <script>
         // Configuration
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJtNJfBykRQBwSNLKViJhv5bgc66XlZAAoi-PVd4WoIfYK4O7TZD2kPpzqP2r7wqg/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwR72eurjzD3TWvUDSgaXQ1weg4ZpUJX8_d9yzunlmJVyNBUrOMoMEXuIeuyrdeaO0/exec'; // *** อัปเดต URL ตรงนี้ ***
         
         // Global variables
         let currentTransactionType = 'income';
@@ -534,15 +534,15 @@
             
             sortedTransactions.forEach((transaction, index) => {
                 const row = document.createElement('tr');
-                row.className = index % 2 === 0 ? 'bg-gray-50' : 'bg-white';
+                row.className = 'border-b border-gray-200';
                 
                 const formattedDate = new Date(transaction.date).toLocaleDateString('th-TH');
                 const amountClass = transaction.type === 'income' ? 'text-green-600' : 'text-red-600';
                 const amountPrefix = transaction.type === 'income' ? '+' : '-';
                 
                 row.innerHTML = `
-                    <td class="py-3 px-2 text-sm">${formattedDate}</td>
-                    <td class="py-3 px-2 text-sm">${transaction.category}</td>
+                    <td class="py-3 px-2 text-sm text-gray-800">${formattedDate}</td>
+                    <td class="py-3 px-2 text-sm text-gray-800">${transaction.category}</td>
                     <td class="py-3 px-2 text-sm text-right ${amountClass} font-medium">
                         ${amountPrefix}฿${transaction.amount.toLocaleString()}
                     </td>
@@ -781,7 +781,7 @@
                     // Convert Google Sheets data to our format
                     transactions = result.data.map(item => ({
                         id: item.id || Date.now() + Math.random(),
-                        type: item.type || 'expense',
+                        type: item.ประเภท || 'expense',
                         amount: parseFloat(item.จำนวน) || 0,
                         category: item.หมวดหมู่ || '',
                         date: new Date(item.วันที่).toISOString().split('T')[0],
