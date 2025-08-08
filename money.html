@@ -8,16 +8,40 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Noto Sans Thai', sans-serif; }
-        .glass-effect { backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.8); }
+        body { 
+            font-family: 'Noto Sans Thai', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .glass-effect { 
+            backdrop-filter: blur(20px); 
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .card-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
         .loading { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .toast { transition: all 0.3s ease; }
         .fade-in { animation: fadeIn 0.3s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hover-scale { transition: transform 0.2s ease; }
+        .hover-scale:hover { transform: scale(1.02); }
+        .floating { animation: floating 3s ease-in-out infinite; }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+<body>
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-4 right-4 z-50 hidden">
         <div class="bg-white rounded-lg shadow-lg p-4 border-l-4 border-green-500">
@@ -38,19 +62,26 @@
     <div class="container mx-auto px-4 py-6 max-w-6xl">
         <!-- Header -->
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">💰 จัดการการเงินส่วนตัว</h1>
-            <p class="text-gray-600">ติดตามรายรับ-รายจ่าย เชื่อมต่อ Google Sheets</p>
+            <div class="floating mb-4">
+                <div class="text-6xl mb-4">💰</div>
+            </div>
+            <h1 class="text-4xl font-bold text-white mb-2 drop-shadow-lg">จัดการการเงินส่วนตัว</h1>
+            <p class="text-white/80 text-lg">ติดตามรายรับ-รายจ่าย เชื่อมต่อ Google Sheets</p>
+            <div class="mt-4 inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
+                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span class="text-white text-sm">เชื่อมต่อแล้ว</span>
+            </div>
         </div>
 
         <!-- Navigation Tabs -->
-        <div class="flex flex-wrap justify-center mb-6 bg-white rounded-lg p-1 shadow-sm">
-            <button onclick="showTab('dashboard')" id="tab-dashboard" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors bg-blue-500 text-white">
+        <div class="flex flex-wrap justify-center mb-8 glass-effect rounded-2xl p-2 card-shadow">
+            <button onclick="showTab('dashboard')" id="tab-dashboard" class="tab-btn px-6 py-3 rounded-xl text-sm font-medium transition-all hover-scale bg-white text-purple-600 shadow-lg">
                 📊 แดชบอร์ด
             </button>
-            <button onclick="showTab('transactions')" id="tab-transactions" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 hover:text-blue-500">
+            <button onclick="showTab('transactions')" id="tab-transactions" class="tab-btn px-6 py-3 rounded-xl text-sm font-medium transition-all hover-scale text-white/80 hover:text-white hover:bg-white/20">
                 📋 รายการ
             </button>
-            <button onclick="showTab('categories')" id="tab-categories" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 hover:text-blue-500">
+            <button onclick="showTab('categories')" id="tab-categories" class="tab-btn px-6 py-3 rounded-xl text-sm font-medium transition-all hover-scale text-white/80 hover:text-white hover:bg-white/20">
                 ⚙️ หมวดหมู่
             </button>
         </div>
@@ -58,120 +89,129 @@
         <!-- Dashboard Tab -->
         <div id="dashboard-tab" class="tab-content">
             <!-- Summary Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-gradient-to-r from-green-400 to-green-500 rounded-xl p-6 text-white shadow-lg">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass-effect rounded-2xl p-6 text-white card-shadow hover-scale">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-green-100 text-sm">รายรับทั้งหมด</p>
-                            <p id="total-income" class="text-2xl font-bold">฿0</p>
+                            <p class="text-white/70 text-sm mb-1">รายรับทั้งหมด</p>
+                            <p id="total-income" class="text-3xl font-bold text-green-300">฿0</p>
                         </div>
-                        <div class="text-3xl">💰</div>
+                        <div class="text-4xl opacity-80">💰</div>
+                    </div>
+                    <div class="mt-4 h-1 bg-white/20 rounded-full">
+                        <div class="h-full bg-green-400 rounded-full w-3/4"></div>
                     </div>
                 </div>
-                <div class="bg-gradient-to-r from-red-400 to-red-500 rounded-xl p-6 text-white shadow-lg">
+                <div class="glass-effect rounded-2xl p-6 text-white card-shadow hover-scale">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-red-100 text-sm">รายจ่ายทั้งหมด</p>
-                            <p id="total-expenses" class="text-2xl font-bold">฿0</p>
+                            <p class="text-white/70 text-sm mb-1">รายจ่ายทั้งหมด</p>
+                            <p id="total-expenses" class="text-3xl font-bold text-red-300">฿0</p>
                         </div>
-                        <div class="text-3xl">🧾</div>
+                        <div class="text-4xl opacity-80">🧾</div>
+                    </div>
+                    <div class="mt-4 h-1 bg-white/20 rounded-full">
+                        <div class="h-full bg-red-400 rounded-full w-2/3"></div>
                     </div>
                 </div>
-                <div class="bg-gradient-to-r from-blue-400 to-blue-500 rounded-xl p-6 text-white shadow-lg">
+                <div class="glass-effect rounded-2xl p-6 text-white card-shadow hover-scale">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-blue-100 text-sm">ยอดคงเหลือ</p>
-                            <p id="balance" class="text-2xl font-bold">฿0</p>
+                            <p class="text-white/70 text-sm mb-1">ยอดคงเหลือ</p>
+                            <p id="balance" class="text-3xl font-bold text-blue-300">฿0</p>
                         </div>
-                        <div class="text-3xl">💼</div>
+                        <div class="text-4xl opacity-80">💼</div>
+                    </div>
+                    <div class="mt-4 h-1 bg-white/20 rounded-full">
+                        <div class="h-full bg-blue-400 rounded-full w-1/2"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Month/Year Selector -->
-            <div class="bg-white rounded-xl p-6 shadow-lg mb-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">📅 เลือกช่วงเวลา</h3>
+            <div class="glass-effect rounded-2xl p-6 card-shadow mb-8">
+                <h3 class="text-lg font-semibold text-white mb-4">📅 เลือกช่วงเวลา</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">เดือน</label>
-                        <select id="month-filter" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">ทุกเดือน</option>
-                            <option value="01">มกราคม</option>
-                            <option value="02">กุมภาพันธ์</option>
-                            <option value="03">มีนาคม</option>
-                            <option value="04">เมษายน</option>
-                            <option value="05">พฤษภาคม</option>
-                            <option value="06">มิถุนายน</option>
-                            <option value="07">กรกฎาคม</option>
-                            <option value="08">สิงหาคม</option>
-                            <option value="09">กันยายน</option>
-                            <option value="10">ตุลาคม</option>
-                            <option value="11">พฤศจิกายน</option>
-                            <option value="12">ธันวาคม</option>
+                        <label class="block text-sm font-medium text-white/80 mb-2">เดือน</label>
+                        <select id="month-filter" class="w-full p-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white focus:ring-2 focus:ring-white/50 focus:border-white/50">
+                            <option value="" class="text-gray-800">ทุกเดือน</option>
+                            <option value="01" class="text-gray-800">มกราคม</option>
+                            <option value="02" class="text-gray-800">กุมภาพันธ์</option>
+                            <option value="03" class="text-gray-800">มีนาคม</option>
+                            <option value="04" class="text-gray-800">เมษายน</option>
+                            <option value="05" class="text-gray-800">พฤษภาคม</option>
+                            <option value="06" class="text-gray-800">มิถุนายน</option>
+                            <option value="07" class="text-gray-800">กรกฎาคม</option>
+                            <option value="08" class="text-gray-800">สิงหาคม</option>
+                            <option value="09" class="text-gray-800">กันยายน</option>
+                            <option value="10" class="text-gray-800">ตุลาคม</option>
+                            <option value="11" class="text-gray-800">พฤศจิกายน</option>
+                            <option value="12" class="text-gray-800">ธันวาคม</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ปี</label>
-                        <select id="year-filter" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">ทุกปี</option>
+                        <label class="block text-sm font-medium text-white/80 mb-2">ปี</label>
+                        <select id="year-filter" class="w-full p-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white focus:ring-2 focus:ring-white/50 focus:border-white/50">
+                            <option value="" class="text-gray-800">ทุกปี</option>
                         </select>
                     </div>
                 </div>
-                <button onclick="applyFilters()" class="mt-4 w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors font-medium">
+                <button onclick="applyFilters()" class="mt-4 w-full bg-white/20 backdrop-blur-sm text-white py-3 rounded-xl hover:bg-white/30 transition-all font-medium hover-scale border border-white/30">
                     🔍 กรองข้อมูล
                 </button>
             </div>
 
             <!-- Add Transaction Form -->
-            <div class="bg-white rounded-xl p-6 shadow-lg mb-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">➕ เพิ่มรายการใหม่</h3>
+            <div class="glass-effect rounded-2xl p-6 card-shadow mb-8">
+                <h3 class="text-lg font-semibold text-white mb-4">➕ เพิ่มรายการใหม่</h3>
                 
                 <!-- Transaction Type Toggle -->
-                <div class="flex bg-gray-100 rounded-lg p-1 mb-4">
-                    <button onclick="setTransactionType('income')" id="income-tab" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-green-500 text-white">
+                <div class="flex bg-white/20 backdrop-blur-sm rounded-xl p-1 mb-6 border border-white/30">
+                    <button onclick="setTransactionType('income')" id="income-tab" class="flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all hover-scale bg-green-500/80 text-white shadow-lg">
                         💵 รายรับ
                     </button>
-                    <button onclick="setTransactionType('expense')" id="expense-tab" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors text-gray-600 hover:text-gray-800">
+                    <button onclick="setTransactionType('expense')" id="expense-tab" class="flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all hover-scale text-white/80 hover:text-white hover:bg-white/20">
                         🧾 รายจ่าย
                     </button>
                 </div>
 
-                <form id="transaction-form" class="space-y-4">
+                <form id="transaction-form" class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">จำนวนเงิน (฿)</label>
-                        <input type="number" id="amount" step="0.01" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="0.00">
+                        <label class="block text-sm font-medium text-white/80 mb-2">จำนวนเงิน (฿)</label>
+                        <input type="number" id="amount" step="0.01" required class="w-full p-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50" placeholder="0.00">
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">หมวดหมู่</label>
-                        <div class="flex space-x-2">
-                            <select id="category" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="">เลือกหมวดหมู่</option>
+                        <label class="block text-sm font-medium text-white/80 mb-2">หมวดหมู่</label>
+                        <div class="flex space-x-3">
+                            <select id="category" class="flex-1 p-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white focus:ring-2 focus:ring-white/50 focus:border-white/50">
+                                <option value="" class="text-gray-800">เลือกหมวดหมู่</option>
                             </select>
-                            <input type="text" id="custom-category" placeholder="หมวดหมู่ใหม่" class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <input type="text" id="custom-category" placeholder="หมวดหมู่ใหม่" class="flex-1 p-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50">
                         </div>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">📅 วันที่</label>
-                        <input type="date" id="date" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <label class="block text-sm font-medium text-white/80 mb-2">📅 วันที่</label>
+                        <input type="date" id="date" required class="w-full p-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white focus:ring-2 focus:ring-white/50 focus:border-white/50">
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">📝 หมายเหตุ</label>
-                        <textarea id="note" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
+                        <label class="block text-sm font-medium text-white/80 mb-2">📝 หมายเหตุ</label>
+                        <textarea id="note" rows="3" class="w-full p-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
                     </div>
                     
-                    <button type="submit" class="w-full bg-blue-500 text-white py-4 rounded-lg hover:bg-blue-600 transition-colors font-medium text-lg">
+                    <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all font-medium text-lg shadow-lg hover-scale">
                         💾 บันทึกรายการ
                     </button>
                 </form>
             </div>
 
             <!-- Expense Chart -->
-            <div class="bg-white rounded-xl p-6 shadow-lg mb-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 สัดส่วนรายจ่าย</h3>
-                <div class="relative h-64">
+            <div class="glass-effect rounded-2xl p-6 card-shadow mb-8">
+                <h3 class="text-lg font-semibold text-white mb-4">📊 สัดส่วนรายจ่าย</h3>
+                <div class="relative h-64 bg-white/10 rounded-xl p-4">
                     <canvas id="expense-chart"></canvas>
                 </div>
             </div>
@@ -179,28 +219,28 @@
 
         <!-- Transactions Tab -->
         <div id="transactions-tab" class="tab-content hidden">
-            <div class="bg-white rounded-xl p-6 shadow-lg">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">📋 รายการทั้งหมด</h3>
+            <div class="glass-effect rounded-2xl p-6 card-shadow">
+                <h3 class="text-lg font-semibold text-white mb-4">📋 รายการทั้งหมด</h3>
                 
                 <!-- Sync Buttons -->
-                <div class="mb-4 flex flex-wrap gap-2">
-                    <button onclick="syncWithGoogleSheets()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                <div class="mb-6 flex flex-wrap gap-3">
+                    <button onclick="syncWithGoogleSheets()" class="bg-green-500/80 backdrop-blur-sm text-white px-6 py-3 rounded-xl hover:bg-green-600/80 transition-all hover-scale shadow-lg border border-green-400/30">
                         ☁️ ส่งข้อมูลไป Sheets
                     </button>
-                    <button onclick="loadFromGoogleSheets()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    <button onclick="loadFromGoogleSheets()" class="bg-blue-500/80 backdrop-blur-sm text-white px-6 py-3 rounded-xl hover:bg-blue-600/80 transition-all hover-scale shadow-lg border border-blue-400/30">
                         📥 โหลดจาก Sheets
                     </button>
                 </div>
 
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto bg-white/10 rounded-xl backdrop-blur-sm">
                     <table class="w-full">
                         <thead>
-                            <tr class="border-b border-gray-200">
-                                <th class="text-left py-3 px-2 font-medium text-gray-700">📅 วันที่</th>
-                                <th class="text-left py-3 px-2 font-medium text-gray-700">📂 หมวดหมู่</th>
-                                <th class="text-right py-3 px-2 font-medium text-gray-700">💸 จำนวน</th>
-                                <th class="text-left py-3 px-2 font-medium text-gray-700">🧾 หมายเหตุ</th>
-                                <th class="text-center py-3 px-2 font-medium text-gray-700">จัดการ</th>
+                            <tr class="border-b border-white/20">
+                                <th class="text-left py-4 px-4 font-medium text-white/90">📅 วันที่</th>
+                                <th class="text-left py-4 px-4 font-medium text-white/90">📂 หมวดหมู่</th>
+                                <th class="text-right py-4 px-4 font-medium text-white/90">💸 จำนวน</th>
+                                <th class="text-left py-4 px-4 font-medium text-white/90">🧾 หมายเหตุ</th>
+                                <th class="text-center py-4 px-4 font-medium text-white/90">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody id="transactions-table">
@@ -215,28 +255,28 @@
         <div id="categories-tab" class="tab-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Income Categories -->
-                <div class="bg-white rounded-xl p-6 shadow-lg">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">💵 หมวดหมู่รายรับ</h3>
-                    <div class="space-y-2 mb-4">
+                <div class="glass-effect rounded-2xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-white mb-4">💵 หมวดหมู่รายรับ</h3>
+                    <div class="space-y-3 mb-6">
                         <div id="income-categories-list"></div>
                     </div>
-                    <div class="flex space-x-2">
-                        <input type="text" id="new-income-category" placeholder="หมวดหมู่ใหม่" class="flex-1 p-2 border border-gray-300 rounded-lg">
-                        <button onclick="addCategory('income')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                    <div class="flex space-x-3">
+                        <input type="text" id="new-income-category" placeholder="หมวดหมู่ใหม่" class="flex-1 p-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50">
+                        <button onclick="addCategory('income')" class="bg-green-500/80 text-white px-4 py-3 rounded-xl hover:bg-green-600/80 transition-all hover-scale shadow-lg border border-green-400/30">
                             ➕
                         </button>
                     </div>
                 </div>
 
                 <!-- Expense Categories -->
-                <div class="bg-white rounded-xl p-6 shadow-lg">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🧾 หมวดหมู่รายจ่าย</h3>
-                    <div class="space-y-2 mb-4">
+                <div class="glass-effect rounded-2xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-white mb-4">🧾 หมวดหมู่รายจ่าย</h3>
+                    <div class="space-y-3 mb-6">
                         <div id="expense-categories-list"></div>
                     </div>
-                    <div class="flex space-x-2">
-                        <input type="text" id="new-expense-category" placeholder="หมวดหมู่ใหม่" class="flex-1 p-2 border border-gray-300 rounded-lg">
-                        <button onclick="addCategory('expense')" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                    <div class="flex space-x-3">
+                        <input type="text" id="new-expense-category" placeholder="หมวดหมู่ใหม่" class="flex-1 p-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/60 focus:ring-2 focus:ring-white/50 focus:border-white/50">
+                        <button onclick="addCategory('expense')" class="bg-red-500/80 text-white px-4 py-3 rounded-xl hover:bg-red-600/80 transition-all hover-scale shadow-lg border border-red-400/30">
                             ➕
                         </button>
                     </div>
@@ -308,14 +348,14 @@
             
             // Remove active class from all tab buttons
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-500', 'text-white');
-                btn.classList.add('text-gray-600');
+                btn.classList.remove('bg-white', 'text-purple-600', 'shadow-lg');
+                btn.classList.add('text-white/80');
             });
             
             // Show selected tab
             document.getElementById(tabName + '-tab').classList.remove('hidden');
-            document.getElementById('tab-' + tabName).classList.add('bg-blue-500', 'text-white');
-            document.getElementById('tab-' + tabName).classList.remove('text-gray-600');
+            document.getElementById('tab-' + tabName).classList.add('bg-white', 'text-purple-600', 'shadow-lg');
+            document.getElementById('tab-' + tabName).classList.remove('text-white/80');
             
             // Refresh chart if dashboard tab
             if (tabName === 'dashboard') {
@@ -331,15 +371,15 @@
             const expenseTab = document.getElementById('expense-tab');
             
             if (type === 'income') {
-                incomeTab.classList.add('bg-green-500', 'text-white');
-                incomeTab.classList.remove('text-gray-600');
-                expenseTab.classList.remove('bg-red-500', 'text-white');
-                expenseTab.classList.add('text-gray-600');
+                incomeTab.classList.add('bg-green-500/80', 'text-white', 'shadow-lg');
+                incomeTab.classList.remove('text-white/80');
+                expenseTab.classList.remove('bg-red-500/80', 'text-white', 'shadow-lg');
+                expenseTab.classList.add('text-white/80');
             } else {
-                expenseTab.classList.add('bg-red-500', 'text-white');
-                expenseTab.classList.remove('text-gray-600');
-                incomeTab.classList.remove('bg-green-500', 'text-white');
-                incomeTab.classList.add('text-gray-600');
+                expenseTab.classList.add('bg-red-500/80', 'text-white', 'shadow-lg');
+                expenseTab.classList.remove('text-white/80');
+                incomeTab.classList.remove('bg-green-500/80', 'text-white', 'shadow-lg');
+                incomeTab.classList.add('text-white/80');
             }
             
             // Update category options
@@ -369,10 +409,10 @@
             incomeList.innerHTML = '';
             categories.income.forEach(cat => {
                 const div = document.createElement('div');
-                div.className = 'flex items-center justify-between p-2 bg-green-50 rounded-lg';
+                div.className = 'flex items-center justify-between p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30 hover-scale';
                 div.innerHTML = `
-                    <span class="text-green-800">${cat}</span>
-                    <button onclick="removeCategory('income', '${cat}')" class="text-red-500 hover:text-red-700">
+                    <span class="text-white">${cat}</span>
+                    <button onclick="removeCategory('income', '${cat}')" class="text-red-300 hover:text-red-100 transition-colors">
                         🗑️
                     </button>
                 `;
@@ -384,10 +424,10 @@
             expenseList.innerHTML = '';
             categories.expense.forEach(cat => {
                 const div = document.createElement('div');
-                div.className = 'flex items-center justify-between p-2 bg-red-50 rounded-lg';
+                div.className = 'flex items-center justify-between p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30 hover-scale';
                 div.innerHTML = `
-                    <span class="text-red-800">${cat}</span>
-                    <button onclick="removeCategory('expense', '${cat}')" class="text-red-500 hover:text-red-700">
+                    <span class="text-white">${cat}</span>
+                    <button onclick="removeCategory('expense', '${cat}')" class="text-red-300 hover:text-red-100 transition-colors">
                         🗑️
                     </button>
                 `;
@@ -651,7 +691,7 @@
             try {
                 // Send all transactions to Google Sheets
                 for (const transaction of transactions) {
-                    const response = await fetch(https://script.google.com/macros/s/AKfycbwPG4gCj8h6Fa--gSdHA6rnGcJ7jnmY5Rz_XBH7MgldUm8fbsPGoaF4-r1BzBkSh8A/exec, {
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -811,5 +851,5 @@
             }
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96bcf78a220f45c4',t:'MTc1NDYzNDY0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96bd3cb723381100',t:'MTc1NDYzNzQ3OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
