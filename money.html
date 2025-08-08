@@ -42,7 +42,6 @@
     </style>
 </head>
 <body>
-    <!-- Toast Notification -->
     <div id="toast" class="fixed top-4 right-4 z-50 hidden">
         <div class="bg-white rounded-lg shadow-lg p-4 border-l-4 border-green-500">
             <div class="flex items-center">
@@ -51,7 +50,6 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
     <div id="loading" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden flex items-center justify-center">
         <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
             <div class="loading w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full"></div>
@@ -60,7 +58,6 @@
     </div>
 
     <div class="container mx-auto px-4 py-6 max-w-6xl">
-        <!-- Header -->
         <div class="text-center mb-8">
             <div class="floating mb-4">
                 <div class="text-6xl mb-4">💰</div>
@@ -73,7 +70,6 @@
             </div>
         </div>
 
-        <!-- Navigation Tabs -->
         <div class="flex flex-wrap justify-center mb-8 glass-effect rounded-2xl p-2 card-shadow">
             <button onclick="showTab('dashboard')" id="tab-dashboard" class="tab-btn px-6 py-3 rounded-xl text-sm font-medium transition-all hover-scale bg-white text-purple-600 shadow-lg">
                 📊 แดชบอร์ด
@@ -86,9 +82,7 @@
             </button>
         </div>
 
-        <!-- Dashboard Tab -->
         <div id="dashboard-tab" class="tab-content">
-            <!-- Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="glass-effect rounded-2xl p-6 text-white card-shadow hover-scale">
                     <div class="flex items-center justify-between">
@@ -128,7 +122,6 @@
                 </div>
             </div>
 
-            <!-- Month/Year Selector -->
             <div class="glass-effect rounded-2xl p-6 card-shadow mb-8">
                 <h3 class="text-lg font-semibold text-white mb-4">📅 เลือกช่วงเวลา</h3>
                 <div class="grid grid-cols-2 gap-4">
@@ -162,11 +155,9 @@
                 </button>
             </div>
 
-            <!-- Add Transaction Form -->
             <div class="glass-effect rounded-2xl p-6 card-shadow mb-8">
                 <h3 class="text-lg font-semibold text-white mb-4">➕ เพิ่มรายการใหม่</h3>
                 
-                <!-- Transaction Type Toggle -->
                 <div class="flex bg-white/20 backdrop-blur-sm rounded-xl p-1 mb-6 border border-white/30">
                     <button onclick="setTransactionType('income')" id="income-tab" class="flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all hover-scale bg-green-500/80 text-white shadow-lg">
                         💵 รายรับ
@@ -208,7 +199,6 @@
                 </form>
             </div>
 
-            <!-- Expense Chart -->
             <div class="glass-effect rounded-2xl p-6 card-shadow mb-8">
                 <h3 class="text-lg font-semibold text-white mb-4">📊 สัดส่วนรายจ่าย</h3>
                 <div class="relative h-64 bg-white/10 rounded-xl p-4">
@@ -217,12 +207,10 @@
             </div>
         </div>
 
-        <!-- Transactions Tab -->
         <div id="transactions-tab" class="tab-content hidden">
             <div class="glass-effect rounded-2xl p-6 card-shadow">
                 <h3 class="text-lg font-semibold text-white mb-4">📋 รายการทั้งหมด</h3>
                 
-                <!-- Sync Buttons -->
                 <div class="mb-6 flex flex-wrap gap-3">
                     <button onclick="syncWithGoogleSheets()" class="bg-green-500/80 backdrop-blur-sm text-white px-6 py-3 rounded-xl hover:bg-green-600/80 transition-all hover-scale shadow-lg border border-green-400/30">
                         ☁️ ส่งข้อมูลไป Sheets
@@ -244,17 +232,14 @@
                             </tr>
                         </thead>
                         <tbody id="transactions-table">
-                            <!-- Transactions will be populated here -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Categories Tab -->
         <div id="categories-tab" class="tab-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Income Categories -->
                 <div class="glass-effect rounded-2xl p-6 card-shadow">
                     <h3 class="text-lg font-semibold text-white mb-4">💵 หมวดหมู่รายรับ</h3>
                     <div class="space-y-3 mb-6">
@@ -268,7 +253,6 @@
                     </div>
                 </div>
 
-                <!-- Expense Categories -->
                 <div class="glass-effect rounded-2xl p-6 card-shadow">
                     <h3 class="text-lg font-semibold text-white mb-4">🧾 หมวดหมู่รายจ่าย</h3>
                     <div class="space-y-3 mb-6">
@@ -287,7 +271,7 @@
 
     <script>
         // Configuration
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwPG4gCj8h6Fa--gSdHA6rnGcJ7jnmY5Rz_XBH7MgldUm8fbsPGoaF4-r1BzBkSh8A/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJtNJfBykRQBwSNLKViJhv5bgc66XlZAAoi-PVd4WoIfYK4O7TZD2kPpzqP2r7wqg/exec';
         
         // Global variables
         let currentTransactionType = 'income';
@@ -690,28 +674,24 @@
             
             try {
                 // Send all transactions to Google Sheets
-                for (const transaction of transactions) {
-                    const response = await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            action: 'add',
-                            ...transaction
-                        })
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error('Failed to sync transaction');
-                    }
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(transactions) // แก้ไขให้ส่ง transactions ทั้งหมดไปใน body
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showToast(result.message);
+                } else {
+                    throw new Error(result.message);
                 }
-                
-                showToast('ซิงค์ข้อมูลกับ Google Sheets เรียบร้อยแล้ว');
-                
             } catch (error) {
                 console.error('Sync error:', error);
-                showToast('เกิดข้อผิดพลาดในการซิงค์ข้อมูล', 'error');
+                showToast('เกิดข้อผิดพลาดในการซิงค์ข้อมูล: ' + error.message, 'error');
             } finally {
                 showLoading(false);
             }
@@ -785,33 +765,6 @@
             }
         }
 
-        // Google Sheets Integration Functions (Demo)
-        async function syncToGoogleSheets() {
-            try {
-                showLoading(true);
-                
-                // This would be your actual Google Apps Script URL
-                const response = await fetch(`${GOOGLE_SCRIPT_URL}?sheet=รายจ่าย`, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        amount: 200,
-                        category: 'อาหาร',
-                        date: '2024-01-01',
-                        note: 'ทดสอบ'
-                    }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                
-                const result = await response.text();
-                showToast('ส่งข้อมูลไป Google Sheets เรียบร้อยแล้ว');
-                
-            } catch (error) {
-                showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ Google Sheets', 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
         async function loadFromGoogleSheets() {
             try {
                 showLoading(true);
@@ -829,11 +782,11 @@
                     transactions = result.data.map(item => ({
                         id: item.id || Date.now() + Math.random(),
                         type: item.type || 'expense',
-                        amount: parseFloat(item.amount) || 0,
-                        category: item.category || '',
-                        date: item.date || new Date().toISOString().split('T')[0],
-                        note: item.note || '',
-                        timestamp: item.timestamp || new Date().toISOString()
+                        amount: parseFloat(item.จำนวน) || 0,
+                        category: item.หมวดหมู่ || '',
+                        date: new Date(item.วันที่).toISOString().split('T')[0],
+                        note: item.หมายเหตุ || '',
+                        timestamp: item.เวลาบันทึก || new Date().toISOString()
                     }));
                     
                     // Update display
