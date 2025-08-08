@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>💰 ระบบจัดการรายรับรายจ่าย Pro</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   💰 ระบบจัดการรายรับรายจ่าย Pro
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js">
+  </script>
   <style>
-    @keyframes slideIn {
+   @keyframes slideIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
@@ -34,388 +38,518 @@
     .tab-active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
     .tab-inactive { background: #f3f4f6; color: #6b7280; }
   </style>
-</head>
-<body class="bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 min-h-screen">
+ </head>
+ <body class="from-purple-100 via-pink-50 to-blue-100 min-h-screen bg-white min-h-screen">
   <!-- Navigation -->
   <nav class="gradient-bg shadow-lg sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="text-3xl animate-bounce-custom">💰</div>
-          <h1 class="text-2xl font-bold text-white">ระบบจัดการรายรับรายจ่าย Pro</h1>
-        </div>
-        <div class="flex space-x-2">
-          <button id="tabDashboard" class="tab-active px-4 py-2 rounded-lg transition duration-200 font-medium">
-            📊 แดชบอร์ด
-          </button>
-          <button id="tabRecurring" class="tab-inactive px-4 py-2 rounded-lg transition duration-200 font-medium">
-            🔄 รายการประจำ
-          </button>
-          <button id="tabHistory" class="tab-inactive px-4 py-2 rounded-lg transition duration-200 font-medium">
-            📅 ประวัติ
-          </button>
-          <button id="tabConfig" class="tab-inactive px-4 py-2 rounded-lg transition duration-200 font-medium">
-            ⚙️ ตั้งค่า
-          </button>
-        </div>
+   <div class="max-w-7xl mx-auto px-4 py-4">
+    <div class="flex items-center justify-between">
+     <div class="flex items-center space-x-3">
+      <div class="text-3xl animate-bounce-custom">
+       💰
       </div>
+      <h1 class="text-2xl font-bold text-white">
+       ระบบจัดการรายรับรายจ่าย Pro
+      </h1>
+     </div>
+     <div class="flex space-x-2">
+      <button class="tab-active px-4 py-2 rounded-lg transition duration-200 font-medium" id="tabDashboard">
+       📊 แดชบอร์ด
+      </button>
+      <button class="tab-inactive px-4 py-2 rounded-lg transition duration-200 font-medium" id="tabRecurring">
+       🔄 รายการประจำ
+      </button>
+      <button class="tab-inactive px-4 py-2 rounded-lg transition duration-200 font-medium" id="tabHistory">
+       📅 ประวัติ
+      </button>
+      <button class="tab-inactive px-4 py-2 rounded-lg transition duration-200 font-medium" id="tabConfig">
+       ⚙️ ตั้งค่า
+      </button>
+     </div>
     </div>
+   </div>
   </nav>
-
   <!-- Dashboard Tab -->
-  <div id="dashboardContent" class="max-w-7xl mx-auto py-8 px-4">
-    <!-- Month/Year Selector -->
-    <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 card-hover animate-slideIn">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-bold text-gray-800">📅 เลือกช่วงเวลา</h2>
-        <div class="flex space-x-4">
-          <select id="monthSelector" class="border-2 border-gray-200 px-4 py-2 rounded-xl focus:ring-2 focus:ring-purple-500">
-            <option value="">ทุกเดือน</option>
-            <option value="01">มกราคม</option>
-            <option value="02">กุมภาพันธ์</option>
-            <option value="03">มีนาคม</option>
-            <option value="04">เมษายน</option>
-            <option value="05">พฤษภาคม</option>
-            <option value="06">มิถุนายน</option>
-            <option value="07">กรกฎาคม</option>
-            <option value="08">สิงหาคม</option>
-            <option value="09">กันยายน</option>
-            <option value="10">ตุลาคม</option>
-            <option value="11">พฤศจิกายน</option>
-            <option value="12">ธันวาคม</option>
-          </select>
-          <select id="yearSelector" class="border-2 border-gray-200 px-4 py-2 rounded-xl focus:ring-2 focus:ring-purple-500">
-          </select>
-        </div>
-      </div>
+  <div class="max-w-7xl mx-auto py-8 px-4" id="dashboardContent">
+   <!-- Month/Year Selector -->
+   <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 card-hover animate-slideIn">
+    <div class="flex items-center justify-between">
+     <h2 class="text-xl font-bold text-gray-800">
+      📅 เลือกช่วงเวลา
+     </h2>
+     <div class="flex space-x-4">
+      <select class="border-2 border-gray-200 px-4 py-2 rounded-xl focus:ring-2 focus:ring-purple-500" id="monthSelector">
+       <option value="">
+        ทุกเดือน
+       </option>
+       <option value="01">
+        มกราคม
+       </option>
+       <option value="02">
+        กุมภาพันธ์
+       </option>
+       <option value="03">
+        มีนาคม
+       </option>
+       <option value="04">
+        เมษายน
+       </option>
+       <option value="05">
+        พฤษภาคม
+       </option>
+       <option value="06">
+        มิถุนายน
+       </option>
+       <option value="07">
+        กรกฎาคม
+       </option>
+       <option value="08">
+        สิงหาคม
+       </option>
+       <option value="09">
+        กันยายน
+       </option>
+       <option value="10">
+        ตุลาคม
+       </option>
+       <option value="11">
+        พฤศจิกายน
+       </option>
+       <option value="12">
+        ธันวาคม
+       </option>
+      </select>
+      <select class="border-2 border-gray-200 px-4 py-2 rounded-xl focus:ring-2 focus:ring-purple-500" id="yearSelector">
+      </select>
+     </div>
     </div>
-
-    <!-- Quick Stats Dashboard -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <div class="bg-gradient-to-r from-green-400 to-green-600 rounded-2xl shadow-xl p-6 text-white card-hover animate-slideIn">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-green-100 text-sm">รายรับทั้งหมด</p>
-            <p id="totalIncome" class="text-3xl font-bold">฿0.00</p>
-          </div>
-          <div class="text-4xl animate-pulse-custom">💵</div>
-        </div>
+   </div>
+   <!-- Quick Stats Dashboard -->
+   <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-gradient-to-r from-green-400 to-green-600 rounded-2xl shadow-xl p-6 text-white card-hover animate-slideIn">
+     <div class="flex items-center justify-between">
+      <div>
+       <p class="text-green-100 text-sm">
+        รายรับทั้งหมด
+       </p>
+       <p class="text-3xl font-bold" id="totalIncome">
+        ฿0.00
+       </p>
       </div>
-      
-      <div class="bg-gradient-to-r from-red-400 to-red-600 rounded-2xl shadow-xl p-6 text-white card-hover animate-slideIn" style="animation-delay: 0.1s">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-red-100 text-sm">รายจ่ายทั้งหมด</p>
-            <p id="totalExpense" class="text-3xl font-bold">฿0.00</p>
-          </div>
-          <div class="text-4xl animate-pulse-custom">💸</div>
-        </div>
+      <div class="text-4xl animate-pulse-custom">
+       💵
       </div>
-      
-      <div class="bg-gradient-to-r from-blue-400 to-blue-600 rounded-2xl shadow-xl p-6 text-white card-hover animate-slideIn" style="animation-delay: 0.2s">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-blue-100 text-sm">ยอดคงเหลือ</p>
-            <p id="balance" class="text-3xl font-bold">฿0.00</p>
-          </div>
-          <div class="text-4xl animate-pulse-custom">💰</div>
-        </div>
-      </div>
-      
-      <div class="bg-gradient-to-r from-purple-400 to-purple-600 rounded-2xl shadow-xl p-6 text-white card-hover animate-slideIn" style="animation-delay: 0.3s">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-purple-100 text-sm">รายการทั้งหมด</p>
-            <p id="totalTransactions" class="text-3xl font-bold">0</p>
-          </div>
-          <div class="text-4xl animate-pulse-custom">📊</div>
-        </div>
-      </div>
+     </div>
     </div>
-
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Left Column: Form -->
-      <div class="lg:col-span-1 space-y-6">
-        <!-- Add Transaction Form -->
-        <div class="bg-white rounded-2xl shadow-xl p-6 card-hover animate-slideIn">
-          <div class="flex items-center space-x-3 mb-6">
-            <div class="text-2xl">➕</div>
-            <h2 class="text-xl font-bold text-gray-800">เพิ่มรายการใหม่</h2>
-          </div>
-          
-          <form id="expenseForm" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">ประเภท</label>
-              <select id="type" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200">
-                <option value="รายรับ">💵 รายรับ</option>
-                <option value="รายจ่าย">💸 รายจ่าย</option>
-              </select>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">หมวดหมู่</label>
-              <select id="category" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200">
-              </select>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">จำนวนเงิน (บาท)</label>
-              <input id="amount" type="number" step="0.01" min="0" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200" required>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">หมายเหตุ</label>
-              <input id="note" type="text" placeholder="รายละเอียดเพิ่มเติม..." class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200">
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">วันที่</label>
-              <input id="date" type="date" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200" required>
-            </div>
-            
-            <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg transition duration-200 transform hover:scale-105">
-              ✨ บันทึกข้อมูล
-            </button>
-          </form>
-
-          <div id="message" class="mt-4 p-4 bg-green-100 text-green-700 rounded-xl font-medium hidden animate-fadeIn">
-            ✅ บันทึกข้อมูลเรียบร้อยแล้ว!
-          </div>
-        </div>
+    <div class="bg-gradient-to-r from-red-400 to-red-600 rounded-2xl shadow-xl p-6 text-white card-hover animate-slideIn" style="animation-delay: 0.1s">
+     <div class="flex items-center justify-between">
+      <div>
+       <p class="text-red-100 text-sm">
+        รายจ่ายทั้งหมด
+       </p>
+       <p class="text-3xl font-bold" id="totalExpense">
+        ฿0.00
+       </p>
       </div>
-
-      <!-- Right Column: Charts and Transactions -->
-      <div class="lg:col-span-2 space-y-6">
-        <!-- Charts Section -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Income Pie Chart -->
-          <div class="bg-white rounded-2xl shadow-xl p-6 card-hover animate-slideIn">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">💵 สัดส่วนรายรับ</h3>
-            <canvas id="incomeChart" width="300" height="300"></canvas>
-          </div>
-          
-          <!-- Expense Pie Chart -->
-          <div class="bg-white rounded-2xl shadow-xl p-6 card-hover animate-slideIn">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">💸 สัดส่วนรายจ่าย</h3>
-            <canvas id="expenseChart" width="300" height="300"></canvas>
-          </div>
-        </div>
-
-        <!-- Transactions List -->
-        <div class="bg-white rounded-2xl shadow-xl p-6 card-hover animate-slideIn">
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-bold text-gray-800">📋 รายการทั้งหมด</h3>
-            <div class="flex space-x-2">
-              <input id="searchInput" type="text" placeholder="ค้นหา..." class="border-2 border-gray-200 px-3 py-1 rounded-lg text-sm">
-            </div>
-          </div>
-          <div id="transactionsList" class="space-y-3 max-h-96 overflow-y-auto">
-            <div class="text-center text-gray-500 py-8">
-              📝 ยังไม่มีรายการ เริ่มเพิ่มรายการแรกของคุณได้เลย!
-            </div>
-          </div>
-        </div>
+      <div class="text-4xl animate-pulse-custom">
+       💸
       </div>
+     </div>
     </div>
-  </div>
-
-  <!-- Recurring Tab -->
-  <div id="recurringContent" class="max-w-7xl mx-auto py-8 px-4 hidden">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- Add Recurring Transaction -->
-      <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
-        <h2 class="text-xl font-bold text-gray-800 mb-6">🔄 เพิ่มรายการประจำเดือน</h2>
-        
-        <form id="recurringForm" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">ประเภท</label>
-            <select id="recurringType" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500">
-              <option value="รายรับ">💵 รายรับ</option>
-              <option value="รายจ่าย">💸 รายจ่าย</option>
-            </select>
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">หมวดหมู่</label>
-            <select id="recurringCategory" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500">
-            </select>
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">จำนวนเงิน (บาท)</label>
-            <input id="recurringAmount" type="number" step="0.01" min="0" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500" required>
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">หมายเหตุ</label>
-            <input id="recurringNote" type="text" placeholder="รายละเอียด..." class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500">
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">วันที่ในเดือน</label>
-            <select id="recurringDay" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500">
-              <option value="1">วันที่ 1</option>
-              <option value="5">วันที่ 5</option>
-              <option value="10">วันที่ 10</option>
-              <option value="15">วันที่ 15</option>
-              <option value="20">วันที่ 20</option>
-              <option value="25">วันที่ 25</option>
-              <option value="30">วันที่ 30</option>
-            </select>
-          </div>
-          
-          <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-4 rounded-xl font-bold transition duration-200">
-            🔄 เพิ่มรายการประจำ
-          </button>
-        </form>
+    <div class="bg-gradient-to-r from-blue-400 to-blue-600 rounded-2xl shadow-xl p-6 text-white card-hover animate-slideIn" style="animation-delay: 0.2s">
+     <div class="flex items-center justify-between">
+      <div>
+       <p class="text-blue-100 text-sm">
+        ยอดคงเหลือ
+       </p>
+       <p class="text-3xl font-bold" id="balance">
+        ฿0.00
+       </p>
       </div>
-
-      <!-- Recurring Transactions List -->
-      <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
-        <h3 class="text-lg font-bold text-gray-800 mb-6">📋 รายการประจำเดือน</h3>
-        <div id="recurringList" class="space-y-3">
-          <div class="text-center text-gray-500 py-8">
-            🔄 ยังไม่มีรายการประจำ
-          </div>
-        </div>
+      <div class="text-4xl animate-pulse-custom">
+       💰
       </div>
+     </div>
     </div>
-  </div>
-
-  <!-- History Tab -->
-  <div id="historyContent" class="max-w-7xl mx-auto py-8 px-4 hidden">
-    <!-- Year Summary -->
-    <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 card-hover">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-gray-800">📊 สรุปรายปี</h2>
-        <select id="yearSummarySelector" class="border-2 border-gray-200 px-4 py-2 rounded-xl focus:ring-2 focus:ring-purple-500">
+    <div class="bg-gradient-to-r from-purple-400 to-purple-600 rounded-2xl shadow-xl p-6 text-white card-hover animate-slideIn" style="animation-delay: 0.3s">
+     <div class="flex items-center justify-between">
+      <div>
+       <p class="text-purple-100 text-sm">
+        รายการทั้งหมด
+       </p>
+       <p class="text-3xl font-bold" id="totalTransactions">
+        0
+       </p>
+      </div>
+      <div class="text-4xl animate-pulse-custom">
+       📊
+      </div>
+     </div>
+    </div>
+   </div>
+   <!-- Main Content Grid -->
+   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Left Column: Form -->
+    <div class="lg:col-span-1 space-y-6">
+     <!-- Add Transaction Form -->
+     <div class="bg-white rounded-2xl shadow-xl p-6 card-hover animate-slideIn">
+      <div class="flex items-center space-x-3 mb-6">
+       <div class="text-2xl">
+        ➕
+       </div>
+       <h2 class="text-xl font-bold text-gray-800">
+        เพิ่มรายการใหม่
+       </h2>
+      </div>
+      <form class="space-y-4" id="expenseForm">
+       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+         ประเภท
+        </label>
+        <select class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200" id="type">
+         <option value="รายรับ">
+          💵 รายรับ
+         </option>
+         <option value="รายจ่าย">
+          💸 รายจ่าย
+         </option>
         </select>
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="text-center">
-          <div class="text-3xl mb-2">💵</div>
-          <div class="text-sm text-gray-600">รายรับรวม</div>
-          <div id="yearlyIncome" class="text-2xl font-bold text-green-600">฿0.00</div>
-        </div>
-        <div class="text-center">
-          <div class="text-3xl mb-2">💸</div>
-          <div class="text-sm text-gray-600">รายจ่ายรวม</div>
-          <div id="yearlyExpense" class="text-2xl font-bold text-red-600">฿0.00</div>
-        </div>
-        <div class="text-center">
-          <div class="text-3xl mb-2">💰</div>
-          <div class="text-sm text-gray-600">ยอดคงเหลือ</div>
-          <div id="yearlyBalance" class="text-2xl font-bold text-blue-600">฿0.00</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Monthly Breakdown -->
-    <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
-      <h3 class="text-lg font-bold text-gray-800 mb-6">📅 รายละเอียดรายเดือน</h3>
-      <div id="monthlyBreakdown" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      </div>
-    </div>
-  </div>
-
-  <!-- Config Tab -->
-  <div id="configContent" class="max-w-7xl mx-auto py-8 px-4 hidden">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- Income Categories -->
-      <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
-        <h2 class="text-xl font-bold text-gray-800 mb-6">💵 หมวดหมู่รายรับ</h2>
-        
-        <div class="mb-4">
-          <div class="flex space-x-2">
-            <input id="newIncomeCategory" type="text" placeholder="ชื่อหมวดหมู่ใหม่..." class="flex-1 border-2 border-gray-200 px-4 py-2 rounded-xl focus:ring-2 focus:ring-purple-500">
-            <input id="newIncomeCategoryIcon" type="text" placeholder="🏢" maxlength="2" class="w-16 border-2 border-gray-200 px-2 py-2 rounded-xl text-center focus:ring-2 focus:ring-purple-500">
-            <button id="addIncomeCategory" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition duration-200">เพิ่ม</button>
-          </div>
-        </div>
-        
-        <div id="incomeCategoriesList" class="space-y-2">
-        </div>
-      </div>
-
-      <!-- Expense Categories -->
-      <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
-        <h2 class="text-xl font-bold text-gray-800 mb-6">💸 หมวดหมู่รายจ่าย</h2>
-        
-        <div class="mb-4">
-          <div class="flex space-x-2">
-            <input id="newExpenseCategory" type="text" placeholder="ชื่อหมวดหมู่ใหม่..." class="flex-1 border-2 border-gray-200 px-4 py-2 rounded-xl focus:ring-2 focus:ring-purple-500">
-            <input id="newExpenseCategoryIcon" type="text" placeholder="🍽️" maxlength="2" class="w-16 border-2 border-gray-200 px-2 py-2 rounded-xl text-center focus:ring-2 focus:ring-purple-500">
-            <button id="addExpenseCategory" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition duration-200">เพิ่ม</button>
-          </div>
-        </div>
-        
-        <div id="expenseCategoriesList" class="space-y-2">
-        </div>
-      </div>
-    </div>
-
-    <!-- Data Management -->
-    <div class="bg-white rounded-2xl shadow-xl p-6 mt-8 card-hover">
-      <h2 class="text-xl font-bold text-gray-800 mb-6">🗂️ จัดการข้อมูล</h2>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <button id="exportData" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl transition duration-200">
-          📊 ส่งออกข้อมูล
-        </button>
-        <button id="backupData" class="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-xl transition duration-200">
-          💾 สำรองข้อมูล
-        </button>
-        <button id="resetCategories" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-3 rounded-xl transition duration-200">
-          🔄 รีเซ็ตหมวดหมู่
-        </button>
-        <button id="clearAllData" class="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl transition duration-200">
-          🗑️ ลบข้อมูลทั้งหมด
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Edit Modal -->
-  <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-2xl p-6 m-4 w-full max-w-md animate-slideIn">
-      <h3 class="text-xl font-bold mb-4">✏️ แก้ไขรายการ</h3>
-      <form id="editForm" class="space-y-4">
-        <input type="hidden" id="editId">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">ประเภท</label>
-          <select id="editType" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl">
-            <option value="รายรับ">💵 รายรับ</option>
-            <option value="รายจ่าย">💸 รายจ่าย</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">หมวดหมู่</label>
-          <select id="editCategory" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl">
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">จำนวนเงิน</label>
-          <input id="editAmount" type="number" step="0.01" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl" required>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">หมายเหตุ</label>
-          <input id="editNote" type="text" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">วันที่</label>
-          <input id="editDate" type="date" class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl" required>
-        </div>
-        <div class="flex space-x-3">
-          <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl">บันทึก</button>
-          <button type="button" id="closeEdit" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 rounded-xl">ยกเลิก</button>
-        </div>
+       </div>
+       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+         หมวดหมู่
+        </label>
+        <select class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200" id="category">
+        </select>
+       </div>
+       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+         จำนวนเงิน (บาท)
+        </label>
+        <input class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200" id="amount" min="0" required="" step="0.01" type="number"/>
+       </div>
+       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+         หมายเหตุ
+        </label>
+        <input class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200" id="note" placeholder="รายละเอียดเพิ่มเติม..." type="text"/>
+       </div>
+       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+         วันที่
+        </label>
+        <input class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200" id="date" required="" type="date"/>
+       </div>
+       <button class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg transition duration-200 transform hover:scale-105" type="submit">
+        ✨ บันทึกข้อมูล
+       </button>
       </form>
+      <div class="mt-4 p-4 bg-green-100 text-green-700 rounded-xl font-medium hidden animate-fadeIn" id="message">
+       ✅ บันทึกข้อมูลเรียบร้อยแล้ว!
+      </div>
+     </div>
     </div>
+    <!-- Right Column: Charts and Transactions -->
+    <div class="lg:col-span-2 space-y-6">
+     <!-- Charts Section -->
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Income Pie Chart -->
+      <div class="bg-white rounded-2xl shadow-xl p-6 card-hover animate-slideIn">
+       <h3 class="text-lg font-bold text-gray-800 mb-4">
+        💵 สัดส่วนรายรับ
+       </h3>
+       <canvas height="300" id="incomeChart" width="300">
+       </canvas>
+      </div>
+      <!-- Expense Pie Chart -->
+      <div class="bg-white rounded-2xl shadow-xl p-6 card-hover animate-slideIn">
+       <h3 class="text-lg font-bold text-gray-800 mb-4">
+        💸 สัดส่วนรายจ่าย
+       </h3>
+       <canvas height="300" id="expenseChart" width="300">
+       </canvas>
+      </div>
+     </div>
+     <!-- Transactions List -->
+     <div class="bg-white rounded-2xl shadow-xl p-6 card-hover animate-slideIn">
+      <div class="flex items-center justify-between mb-6">
+       <h3 class="text-lg font-bold text-gray-800">
+        📋 รายการทั้งหมด
+       </h3>
+       <div class="flex space-x-2">
+        <input class="border-2 border-gray-200 px-3 py-1 rounded-lg text-sm" id="searchInput" placeholder="ค้นหา..." type="text"/>
+       </div>
+      </div>
+      <div class="space-y-3 max-h-96 overflow-y-auto" id="transactionsList">
+       <div class="text-center text-gray-500 py-8">
+        📝 ยังไม่มีรายการ เริ่มเพิ่มรายการแรกของคุณได้เลย!
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
   </div>
-
+  <!-- Recurring Tab -->
+  <div class="max-w-7xl mx-auto py-8 px-4 hidden" id="recurringContent">
+   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Add Recurring Transaction -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
+     <h2 class="text-xl font-bold text-gray-800 mb-6">
+      🔄 เพิ่มรายการประจำเดือน
+     </h2>
+     <form class="space-y-4" id="recurringForm">
+      <div>
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        ประเภท
+       </label>
+       <select class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500" id="recurringType">
+        <option value="รายรับ">
+         💵 รายรับ
+        </option>
+        <option value="รายจ่าย">
+         💸 รายจ่าย
+        </option>
+       </select>
+      </div>
+      <div>
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        หมวดหมู่
+       </label>
+       <select class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500" id="recurringCategory">
+       </select>
+      </div>
+      <div>
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        จำนวนเงิน (บาท)
+       </label>
+       <input class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500" id="recurringAmount" min="0" required="" step="0.01" type="number"/>
+      </div>
+      <div>
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        หมายเหตุ
+       </label>
+       <input class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500" id="recurringNote" placeholder="รายละเอียด..." type="text"/>
+      </div>
+      <div>
+       <label class="block text-sm font-medium text-gray-700 mb-2">
+        วันที่ในเดือน
+       </label>
+       <select class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-purple-500" id="recurringDay">
+        <option value="1">
+         วันที่ 1
+        </option>
+        <option value="5">
+         วันที่ 5
+        </option>
+        <option value="10">
+         วันที่ 10
+        </option>
+        <option value="15">
+         วันที่ 15
+        </option>
+        <option value="20">
+         วันที่ 20
+        </option>
+        <option value="25">
+         วันที่ 25
+        </option>
+        <option value="30">
+         วันที่ 30
+        </option>
+       </select>
+      </div>
+      <button class="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-4 rounded-xl font-bold transition duration-200" type="submit">
+       🔄 เพิ่มรายการประจำ
+      </button>
+     </form>
+    </div>
+    <!-- Recurring Transactions List -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
+     <h3 class="text-lg font-bold text-gray-800 mb-6">
+      📋 รายการประจำเดือน
+     </h3>
+     <div class="space-y-3" id="recurringList">
+      <div class="text-center text-gray-500 py-8">
+       🔄 ยังไม่มีรายการประจำ
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <!-- History Tab -->
+  <div class="max-w-7xl mx-auto py-8 px-4 hidden" id="historyContent">
+   <!-- Year Summary -->
+   <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 card-hover">
+    <div class="flex items-center justify-between mb-6">
+     <h2 class="text-xl font-bold text-gray-800">
+      📊 สรุปรายปี
+     </h2>
+     <select class="border-2 border-gray-200 px-4 py-2 rounded-xl focus:ring-2 focus:ring-purple-500" id="yearSummarySelector">
+     </select>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+     <div class="text-center">
+      <div class="text-3xl mb-2">
+       💵
+      </div>
+      <div class="text-sm text-gray-600">
+       รายรับรวม
+      </div>
+      <div class="text-2xl font-bold text-green-600" id="yearlyIncome">
+       ฿0.00
+      </div>
+     </div>
+     <div class="text-center">
+      <div class="text-3xl mb-2">
+       💸
+      </div>
+      <div class="text-sm text-gray-600">
+       รายจ่ายรวม
+      </div>
+      <div class="text-2xl font-bold text-red-600" id="yearlyExpense">
+       ฿0.00
+      </div>
+     </div>
+     <div class="text-center">
+      <div class="text-3xl mb-2">
+       💰
+      </div>
+      <div class="text-sm text-gray-600">
+       ยอดคงเหลือ
+      </div>
+      <div class="text-2xl font-bold text-blue-600" id="yearlyBalance">
+       ฿0.00
+      </div>
+     </div>
+    </div>
+   </div>
+   <!-- Monthly Breakdown -->
+   <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
+    <h3 class="text-lg font-bold text-gray-800 mb-6">
+     📅 รายละเอียดรายเดือน
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="monthlyBreakdown">
+    </div>
+   </div>
+  </div>
+  <!-- Config Tab -->
+  <div class="max-w-7xl mx-auto py-8 px-4 hidden" id="configContent">
+   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Income Categories -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
+     <h2 class="text-xl font-bold text-gray-800 mb-6">
+      💵 หมวดหมู่รายรับ
+     </h2>
+     <div class="mb-4">
+      <div class="flex space-x-2">
+       <input class="flex-1 border-2 border-gray-200 px-4 py-2 rounded-xl focus:ring-2 focus:ring-purple-500" id="newIncomeCategory" placeholder="ชื่อหมวดหมู่ใหม่..." type="text"/>
+       <input class="w-16 border-2 border-gray-200 px-2 py-2 rounded-xl text-center focus:ring-2 focus:ring-purple-500" id="newIncomeCategoryIcon" maxlength="2" placeholder="🏢" type="text"/>
+       <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition duration-200" id="addIncomeCategory">
+        เพิ่ม
+       </button>
+      </div>
+     </div>
+     <div class="space-y-2" id="incomeCategoriesList">
+     </div>
+    </div>
+    <!-- Expense Categories -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
+     <h2 class="text-xl font-bold text-gray-800 mb-6">
+      💸 หมวดหมู่รายจ่าย
+     </h2>
+     <div class="mb-4">
+      <div class="flex space-x-2">
+       <input class="flex-1 border-2 border-gray-200 px-4 py-2 rounded-xl focus:ring-2 focus:ring-purple-500" id="newExpenseCategory" placeholder="ชื่อหมวดหมู่ใหม่..." type="text"/>
+       <input class="w-16 border-2 border-gray-200 px-2 py-2 rounded-xl text-center focus:ring-2 focus:ring-purple-500" id="newExpenseCategoryIcon" maxlength="2" placeholder="🍽️" type="text"/>
+       <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition duration-200" id="addExpenseCategory">
+        เพิ่ม
+       </button>
+      </div>
+     </div>
+     <div class="space-y-2" id="expenseCategoriesList">
+     </div>
+    </div>
+   </div>
+   <!-- Data Management -->
+   <div class="bg-white rounded-2xl shadow-xl p-6 mt-8 card-hover">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">
+     🗂️ จัดการข้อมูล
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+     <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl transition duration-200" id="exportData">
+      📊 ส่งออกข้อมูล
+     </button>
+     <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-xl transition duration-200" id="backupData">
+      💾 สำรองข้อมูล
+     </button>
+     <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-3 rounded-xl transition duration-200" id="resetCategories">
+      🔄 รีเซ็ตหมวดหมู่
+     </button>
+     <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl transition duration-200" id="clearAllData">
+      🗑️ ลบข้อมูลทั้งหมด
+     </button>
+    </div>
+   </div>
+  </div>
+  <!-- Edit Modal -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" id="editModal">
+   <div class="bg-white rounded-2xl p-6 m-4 w-full max-w-md animate-slideIn">
+    <h3 class="text-xl font-bold mb-4">
+     ✏️ แก้ไขรายการ
+    </h3>
+    <form class="space-y-4" id="editForm">
+     <input id="editId" type="hidden"/>
+     <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+       ประเภท
+      </label>
+      <select class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl" id="editType">
+       <option value="รายรับ">
+        💵 รายรับ
+       </option>
+       <option value="รายจ่าย">
+        💸 รายจ่าย
+       </option>
+      </select>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+       หมวดหมู่
+      </label>
+      <select class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl" id="editCategory">
+      </select>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+       จำนวนเงิน
+      </label>
+      <input class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl" id="editAmount" required="" step="0.01" type="number"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+       หมายเหตุ
+      </label>
+      <input class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl" id="editNote" type="text"/>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+       วันที่
+      </label>
+      <input class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl" id="editDate" required="" type="date"/>
+     </div>
+     <div class="flex space-x-3">
+      <button class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl" type="submit">
+       บันทึก
+      </button>
+      <button class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 rounded-xl" id="closeEdit" type="button">
+       ยกเลิก
+      </button>
+     </div>
+    </form>
+   </div>
+  </div>
   <script type="module">
-    // Firebase configuration and imports
+   // Firebase configuration and imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, push, set, onValue, query, orderByChild, limitToLast, remove, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
@@ -1312,5 +1446,8 @@
     // Initialize the app
     init();
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96bbfc52016b10e2',t:'MTc1NDYyNDM1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+  <script>
+   (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96bbfc52016b10e2',t:'MTc1NDYyNDM1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();
+  </script>
+ </body>
 </html>
